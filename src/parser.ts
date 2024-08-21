@@ -26,6 +26,7 @@ export function succeed() {
             rest: str,
           });
         }
+        str = str.trim();
         const testString = str.slice(0, pattern.length);
         if (testString === pattern) {
           return cont({
@@ -40,40 +41,99 @@ export function succeed() {
       });
     });
   }
-  
-  // combinator
-  export function alt() {
-    return memoize((a: any, b: any) => {
+
+  export function matchPattern() {
+    return memoize((pattern: RegExp) => {
       return memoizeCPS((str: string, cont: Function) => {
-        a()(str, cont);
-        b()(str, cont);
+        let matchFound;
+        const startIdx = 0;
+        let endIdx = 0;
+        let stringCopy = str;
+        while ((matchFound = pattern.exec(stringCopy))) {
+          endIdx++;
+          stringCopy = stringCopy.slice(
+            matchFound?.index + 1,
+            stringCopy.length
+          );
+        }
+        if (endIdx > 0) {
+          return cont({
+            rest: str.slice(endIdx, str.length),
+            value: str.slice(startIdx, endIdx),
+          });
+        } else {
+          return cont({
+            rest: str,
+          });
+        }
       });
     });
   }
-  export function seq() {
-    const success = succeed();
-    return memoize((a: any, b: any) => {
-      return memoizeCPS(
-        bind(a(), (x: any) => {
-            return bind(b(), (y: any) => {
-              return success(x + y);
-          });
-        })
-      );
+
+  // combinator
+  //   export function alt() {
+  // return memoize((a: any, b: any) => {
+  //   return memoizeCPS((str: string, cont: Function) => {
+  //     a()(str, cont);
+  //     b()(str, cont);
+  //   });
+  // });
+  // }
+
+  export function alt() {
+    return memoize((...args: any) => {
+      return memoizeCPS((str: string, cont: Function) => {
+        for (let index = 0; index < args.length; index++) {
+          const arg = args[index];
+          arg()(str, cont);
+        }
+      });
     });
   }
-  
+
+  // export function seq() {
+  //   const success = succeed();
+  //   return memoize((a: any, b: any) => {
+  //     return memoizeCPS(
+  //       bind(a(), (x: any) => {
+  //         return bind(b(), (y: any) => {
+  //           return success(x + y);
+  //         });
+  //       })
+  //     );
+  //   });
+  // }
+
+  export function seq() {
+    const success = succeed();
+    return memoize((...args: any[]) => {
+      // Recursive helper function to process args
+      const processArgs = (index: number): any => {
+        // Base case: if we've processed all args, return success with an empty string
+        if (index >= args.length) {
+          return success("");
+        }
+        return bind(args[index](), (currentResult: any) => {
+          return bind(processArgs(index + 1), (nextResult: any) => {
+            return success(currentResult + nextResult);
+          });
+        });
+      };
+      return memoizeCPS(processArgs(0));
+    });
+  }
+
   export function bind(p: any, fn: Function) {
     return (str: string, cont: Function) => {
       return p(str, (result: any) => {
-        if (result.hasOwnProperty('value')) {
-          return fn(result.value)(result.rest, cont)
+        if (result.hasOwnProperty("value")) {
+          return fn(result.value)(result.rest, cont);
         } else {
-          return cont(result)
+          return cont(result);
         }
       });
     };
-  }
+}
   
   function memoize(fn: Function) {
     const cache = new Map<any[], any>();

@@ -49,7 +49,8 @@ export function succeed() {
         const startIdx = 0;
         let endIdx = 0;
         let stringCopy = str;
-        while ((matchFound = pattern.exec(stringCopy))) {
+        const regexPattern = new RegExp(pattern, "i")
+        while ((matchFound = regexPattern.exec(stringCopy))) {
           endIdx++;
           stringCopy = stringCopy.slice(
             matchFound?.index + 1,
@@ -90,6 +91,17 @@ export function succeed() {
       });
     });
   }
+
+export function apply() {
+  const success = succeed();
+  return memoize((p: any, fn: Function) => {
+    return memoizeCPS(
+      bind(p(), (x: any) => {
+        return success(fn(x));
+      })
+    );
+  });
+}
 
   // export function seq() {
   //   const success = succeed();

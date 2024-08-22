@@ -49,18 +49,19 @@ export function succeed() {
         const startIdx = 0;
         let endIdx = 0;
         let stringCopy = str;
-        const regexPattern = new RegExp(pattern, "i")
+        stringCopy = stringCopy.trim();
+        const regexPattern = new RegExp(pattern, "i");
         while ((matchFound = regexPattern.exec(stringCopy))) {
-          endIdx++;
+          endIdx += matchFound[0].length;
           stringCopy = stringCopy.slice(
-            matchFound?.index + 1,
+            matchFound[0].length,
             stringCopy.length
           );
         }
         if (endIdx > 0) {
           return cont({
-            rest: str.slice(endIdx, str.length),
-            value: str.slice(startIdx, endIdx),
+            rest: str.slice(endIdx + 1, str.length),
+            value: str.slice(startIdx, endIdx + 1),
           });
         } else {
           return cont({
@@ -70,16 +71,6 @@ export function succeed() {
       });
     });
   }
-
-  // combinator
-  //   export function alt() {
-  // return memoize((a: any, b: any) => {
-  //   return memoizeCPS((str: string, cont: Function) => {
-  //     a()(str, cont);
-  //     b()(str, cont);
-  //   });
-  // });
-  // }
 
   export function alt() {
     return memoize((...args: any) => {
@@ -92,29 +83,16 @@ export function succeed() {
     });
   }
 
-export function apply() {
-  const success = succeed();
-  return memoize((p: any, fn: Function) => {
-    return memoizeCPS(
-      bind(p(), (x: any) => {
-        return success(fn(x));
-      })
-    );
-  });
-}
-
-  // export function seq() {
-  //   const success = succeed();
-  //   return memoize((a: any, b: any) => {
-  //     return memoizeCPS(
-  //       bind(a(), (x: any) => {
-  //         return bind(b(), (y: any) => {
-  //           return success(x + y);
-  //         });
-  //       })
-  //     );
-  //   });
-  // }
+  export function apply() {
+    const success = succeed();
+    return memoize((p: any, fn: Function) => {
+      return memoizeCPS(
+        bind(p(), (x: any) => {
+          return success(fn(x));
+        })
+      );
+    });
+  }
 
   export function seq() {
     const success = succeed();

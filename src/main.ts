@@ -1,4 +1,4 @@
-import { alt, match, seq } from "./parser";
+import { alt, match, parse, seq } from "./parser";
 
 // left recursive grammar
 const altParser = alt();
@@ -14,3 +14,6 @@ const ps = altParser(
 );
 
 ps("aaa", console.log);
+
+const expParser = parse(ps);
+const result = expParser("aaa");

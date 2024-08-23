@@ -47,9 +47,8 @@ export function matchPattern() {
       let matchFound;
       const startIdx = 0;
       let endIdx = 0;
+      str = str.trim()
       let stringCopy = str;
-      stringCopy = stringCopy.trim();
-      // TODO: string indeces not correct
       const regexPattern = new RegExp(pattern, "i");
       while ((matchFound = regexPattern.exec(stringCopy))) {
         endIdx += matchFound[0].length;
@@ -162,9 +161,6 @@ function memoize(fn: Function) {
   };
 }
 
-export function delayParser(parser: Function): Function {
-  return (...args: any[]) => parser(...args);
-}
 type entry = { continuations: any[]; results: any[] };
 function memoizeCPS(fn: Function) {
   const cache = new Map<string, entry>();

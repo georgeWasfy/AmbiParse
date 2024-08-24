@@ -85,11 +85,7 @@ export function apply() {
   return memoize((p: any, fn: Function) => {
     return memoizeCPS(
       bind(p(), (x: any) => {
-        if (Array.isArray(x)) {
-          return success(x.map((e) => fn(e)));
-        } else {
-          return success(fn(x));
-        }
+        return success(fn(x));
       })
     );
   });
@@ -99,18 +95,22 @@ export function seq() {
   const success = succeed();
   return memoize((...args: any[]) => {
     // Recursive helper function to process args
-    const processArgs = (index: number): any => {
+    const processArgs = (index: number, acc: any[]): any => {
       // Base case: if we've processed all args, return success with an empty string
       if (index >= args.length) {
-        return success("");
+        return success([]);
       }
       return bind(args[index](), (currentResult: any) => {
-        return bind(processArgs(index + 1), (nextResult: any) => {
-          return success(currentResult + nextResult);
+        return bind(processArgs(index + 1, [...acc]), (nextResult: any) => {
+          const curr = Array.isArray(currentResult)
+            ? currentResult
+            : [currentResult];
+          const nxt = Array.isArray(nextResult) ? nextResult : [nextResult];
+          return success([...acc, ...curr, ...nxt]);
         });
       });
     };
-    return memoizeCPS(processArgs(0));
+    return memoizeCPS(processArgs(0, []));
   });
 }
 

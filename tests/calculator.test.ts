@@ -18,32 +18,23 @@ function applyNumber(value: string): number {
   return +value;
 }
 
-function applyFactor(value: string): string {
-  return value.replace("(", "").replace(")", "");
+function applyFactor(value: [string, number, string]): number {
+  return value[1];
 }
 
-function applyBinary(value: string): number {
-  if (value.includes("+")) {
-    const result = value.split("+");
-    //@ts-ignore
-    if (result.length === 2) return +result[0] + +result[1];
+function applyBinary(value: [number, string, number]): number {
+  switch (value[1]) {
+    case '+':
+      return value[0] + value[2];
+    case '-':
+      return value[0] - value[2];
+    case '*':
+      return value[0] * value[2];
+    case '/':
+        return value[0] / value[2];
+    default:
+      throw new Error(`Unknown binary operator`);
   }
-  if (value.includes("-")) {
-    const result = value.split("-");
-    //@ts-ignore
-    if (result.length === 2) return +result[0] - +result[1];
-  }
-  if (value.includes("*")) {
-    const result = value.split("*");
-    //@ts-ignore
-    if (result.length === 2) return +result[0] * +result[1];
-  }
-  if (value.includes("/")) {
-    const result = value.split("/");
-    //@ts-ignore
-    if (result.length === 2) return +result[0] / +result[1];
-  }
-  throw new Error(`Unknown binary operator`);
 }
 //  GRAMMAR
 // expr -> expr "+" term

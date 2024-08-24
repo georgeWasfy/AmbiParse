@@ -44,16 +44,13 @@ export function match() {
 export function matchPattern() {
   return memoize((pattern: RegExp) => {
     return memoizeCPS((str: string, cont: Function) => {
-      let matchFound;
       const startIdx = 0;
       let endIdx = 0;
-      str = str.trim()
+      str = str.trim();
       let stringCopy = str;
       const regexPattern = new RegExp(pattern, "i");
-      while ((matchFound = regexPattern.exec(stringCopy))) {
-        endIdx += matchFound[0].length;
-        stringCopy = stringCopy.slice(matchFound[0].length, stringCopy.length);
-      }
+      const matchFound = regexPattern.exec(stringCopy);
+      if (matchFound) endIdx += matchFound[0].length;
       if (endIdx > 0) {
         return cont({
           rest: str.slice(endIdx, str.length),

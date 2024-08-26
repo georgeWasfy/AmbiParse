@@ -146,14 +146,14 @@ export function parse(parser: any) {
 }
 
 function memoize(fn: Function) {
-  const cache = new Map<any[], any>();
+  const cache = new Map<string, any>();
   return function (...args: any[]) {
-    if (cache.has([...args])) {
-      return cache.get([...args]);
+    if (cache.has(args.toString())) {
+      return cache.get(args.toString());
     }
     //@ts-ignore
     const result = fn.call(this, ...args);
-    cache.set([...args], result);
+    cache.set(args.toString(), result);
     return result;
   };
 }

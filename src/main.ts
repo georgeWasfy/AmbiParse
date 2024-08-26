@@ -4,6 +4,7 @@ import { alt, match, parse, seq } from "./parser";
 const altParser = alt();
 const seqParser = seq();
 const matchParser = match();
+
 const ps = altParser(
   () =>
     seqParser(
@@ -15,5 +16,32 @@ const ps = altParser(
 
 ps("aaa", console.log);
 
-const expParser = parse(ps);
-const result = expParser("aaa");
+
+//  GRAMMAR
+// expr -> term "b"
+// term -> term "aac"| "aac"
+const term = altParser(
+  () =>
+    seqParser(
+      () => term,
+      () =>
+        seqParser(
+          () => matchParser("a"),
+          () => matchParser("a"),
+          () => matchParser("c")
+        )
+    ),
+  () =>
+    seqParser(
+      () => matchParser("a"),
+      () => matchParser("a"),
+      () => matchParser("c")
+    )
+);
+const expr = seqParser(
+  () => term,
+  () => matchParser("b")
+);
+const expParser = parse(expr);
+const result = expParser("aacaacb");
+console.log(result);

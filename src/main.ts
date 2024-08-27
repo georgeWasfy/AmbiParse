@@ -1,47 +1,28 @@
-import { alt, match, parse, seq } from "./parser";
+import { alt, lazy, match, parse, seq } from "./parser";
 
-// left recursive grammar
-const altParser = alt();
-const seqParser = seq();
-const matchParser = match();
+// left recursive grammar Examples
 
-const ps = altParser(
-  () =>
-    seqParser(
-      () => ps,
-      () => matchParser("a")
-    ),
-  () => matchParser("a")
+const ps = alt(
+  seq(
+    lazy(() => ps),
+    match("a")
+  ),
+  match("a")
 );
 
-ps("aaa", console.log);
-
+ps.run("aaa", console.log);
 
 //  GRAMMAR
 // expr -> term "b"
 // term -> term "aac"| "aac"
-const term = altParser(
-  () =>
-    seqParser(
-      () => term,
-      () =>
-        seqParser(
-          () => matchParser("a"),
-          () => matchParser("a"),
-          () => matchParser("c")
-        )
-    ),
-  () =>
-    seqParser(
-      () => matchParser("a"),
-      () => matchParser("a"),
-      () => matchParser("c")
-    )
+const term = alt(
+  seq(
+    lazy(() => term),
+    seq(match("a"), match("a"), match("c"))
+  ),
+  seq(match("a"), match("a"), match("c"))
 );
-const expr = seqParser(
-  () => term,
-  () => matchParser("b")
-);
+const expr = seq(term, match("b"));
 const expParser = parse(expr);
 const result = expParser("aacaacb");
 console.log(result);

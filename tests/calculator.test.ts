@@ -1,18 +1,21 @@
-import { alt, apply, match, matchPattern, parse, seq } from "../src/parser";
+import {
+  alt,
+  apply,
+  lazy,
+  match,
+  matchPattern,
+  parse,
+  seq,
+} from "../src/parser";
 import * as assert from "assert";
-const altParser = alt();
-const seqParser = seq();
-const matchParser = match();
-const matchInParser = matchPattern();
-const applyParser = apply();
 
-const NUMBERS = matchInParser(`^\\d+(\\.\\d+)?`);
-const ADD = matchParser("+");
-const SUB = matchParser("-");
-const MUL = matchParser("*");
-const DIV = matchParser("/");
-const LPAREN = matchParser("(");
-const RPAREN = matchParser(")");
+const NUMBERS = matchPattern(`^\\d+(\\.\\d+)?`);
+const ADD = match("+");
+const SUB = match("-");
+const MUL = match("*");
+const DIV = match("/");
+const LPAREN = match("(");
+const RPAREN = match(")");
 
 function applyNumber(value: string): number {
   return +value;
@@ -22,95 +25,92 @@ function applyFactor(value: [string, number, string]): number {
   return value[1];
 }
 
+function applyUnary(value: [string, number]): number {
+  switch (value[0]) {
+    case "+":
+      return +value[1];
+    case "-":
+      return -value[1];
+    default:
+      throw new Error(`Unknown unary operator: ${value[0]}`);
+  }
+}
+
 function applyBinary(value: [number, string, number]): number {
   switch (value[1]) {
-    case '+':
+    case "+":
       return value[0] + value[2];
-    case '-':
+    case "-":
       return value[0] - value[2];
-    case '*':
+    case "*":
       return value[0] * value[2];
-    case '/':
-        return value[0] / value[2];
+    case "/":
+      return value[0] / value[2];
     default:
       throw new Error(`Unknown binary operator`);
   }
 }
-//  GRAMMAR
-// expr -> expr "+" term
-// | expr "-" term
-// | term
 
-// term -> term "*" factor
-// | term "/" factor
-// | factor
-
-// factor -> "(" expr ")"
-// | num
-
-const expr_parser = altParser(
-  () =>
-    applyParser(
-      () =>
-        seqParser(
-          () => expr_parser,
-          () => ADD,
-          () => term_parser
-        ),
-      applyBinary
+/*
+TERM
+  = NUMBER
+  = ('+' | '-') TERM
+  = '(' EXP ')'
+*/
+const TERM = alt(
+  apply(NUMBERS, applyNumber),
+  apply(
+    seq(
+      alt(ADD, SUB),
+      lazy(() => TERM)
     ),
-  () =>
-    applyParser(
-      () =>
-        seqParser(
-          () => expr_parser,
-          () => SUB,
-          () => term_parser
-        ),
-      applyBinary
+    applyUnary
+  ),
+  apply(
+    seq(
+      LPAREN,
+      lazy(() => EXP),
+      RPAREN
     ),
-  () => term_parser
+    applyFactor
+  )
 );
 
-const term_parser = altParser(
-  () =>
-    applyParser(
-      () =>
-        seqParser(
-          () => term_parser,
-          () => MUL,
-          () => factor_parser
-        ),
-      applyBinary
+/*
+FACTOR
+  = TERM
+  = FACTOR ('*' | '/') TERM
+*/
+const FACTOR = alt(
+  TERM,
+  apply(
+    seq(
+      lazy(() => FACTOR),
+      alt(MUL, DIV),
+      TERM
     ),
-  () =>
-    applyParser(
-      () =>
-        seqParser(
-          () => term_parser,
-          () => DIV,
-          () => factor_parser
-        ),
-      applyBinary
-    ),
-  () => factor_parser
+    applyBinary
+  )
 );
 
-const factor_parser = altParser(
-  () =>
-    applyParser(
-      () =>
-        seqParser(
-          () => LPAREN,
-          () => expr_parser,
-          () => RPAREN
-        ),
-      applyFactor
+// EXP
+//   = FACTOR
+//   = EXP ('+' | '-') FACTOR
+// */
+
+const EXP = alt(
+  FACTOR,
+  apply(
+    seq(
+      lazy(() => EXP),
+      alt(ADD, SUB),
+      FACTOR
     ),
-  () => applyParser(() => NUMBERS, applyNumber)
+    applyBinary
+  )
 );
 
-const calcParser = parse(expr_parser);
+const calcParser = parse(EXP);
 
 test(`Parser: calculator`, () => {
   assert.strictEqual(calcParser("1")[0].value, 1);

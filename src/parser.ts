@@ -6,96 +6,83 @@ export class Parser {
   run(str: string, cont: Function) {
     return this.parserFn(str, cont);
   }
-  // public clone(): Parser {
-  //   return new Parser(this.parserFn.bind(this));
-  // }
 }
 
 // terminal parsers
 function success(val: any) {
-  return memoize(
-    memoizeCPS((input: string, cont: Function) => {
-      return cont({
-        rest: input,
-        value: val,
-      });
-    })
-  );
+  return memoizeCPS((input: string, cont: Function) => {
+    return cont({
+      rest: input,
+      value: val,
+    });
+  });
 }
 
 export function match(pattern: string) {
   return new Parser(
-    memoize(
-      memoizeCPS((str: string, cont: Function) => {
-        if (pattern.length > str.length) {
-          return cont({
-            rest: str,
-          });
-        }
-        str = str.trim();
-        const testString = str.slice(0, pattern.length);
-        if (testString === pattern) {
-          return cont({
-            rest: str.slice(pattern.length, str.length),
-            value: pattern,
-          });
-        } else {
-          return cont({
-            rest: str,
-          });
-        }
-      })
-    )
+    memoizeCPS((str: string, cont: Function) => {
+      if (pattern.length > str.length) {
+        return cont({
+          rest: str,
+        });
+      }
+      str = str.trim();
+      const testString = str.slice(0, pattern.length);
+      if (testString === pattern) {
+        return cont({
+          rest: str.slice(pattern.length, str.length),
+          value: pattern,
+        });
+      } else {
+        return cont({
+          rest: str,
+        });
+      }
+    })
   );
 }
 
 export function matchPattern(pattern: string) {
   return new Parser(
-    memoize(
-      memoizeCPS((str: string, cont: Function) => {
-        const startIdx = 0;
-        let endIdx = 0;
-        str = str.trim();
-        let stringCopy = str;
-        const regexPattern = new RegExp(pattern, "i");
-        const matchFound = regexPattern.exec(stringCopy);
-        if (matchFound) endIdx += matchFound[0].length;
-        if (endIdx > 0) {
-          return cont({
-            rest: str.slice(endIdx, str.length),
-            value: str.slice(startIdx, endIdx),
-          });
-        } else {
-          return cont({
-            rest: str,
-          });
-        }
-      })
-    )
+    memoizeCPS((str: string, cont: Function) => {
+      const startIdx = 0;
+      let endIdx = 0;
+      str = str.trim();
+      let stringCopy = str;
+      const regexPattern = new RegExp(pattern, "i");
+      const matchFound = regexPattern.exec(stringCopy);
+      if (matchFound) endIdx += matchFound[0].length;
+      if (endIdx > 0) {
+        return cont({
+          rest: str.slice(endIdx, str.length),
+          value: str.slice(startIdx, endIdx),
+        });
+      } else {
+        return cont({
+          rest: str,
+        });
+      }
+    })
   );
 }
 
 export function alt(...args: Parser[]) {
   return new Parser(
-    memoize(
-      memoizeCPS((str: string, cont: Function) => {
-        for (let index = 0; index < args.length; index++) {
-          const arg = args[index];
-          arg?.run(str, cont);
-        }
-      })
-    )
+    memoizeCPS((str: string, cont: Function) => {
+      for (let index = 0; index < args.length; index++) {
+        const arg = args[index];
+        arg?.run(str, cont);
+      }
+    })
   );
 }
 
 export function apply(p: Parser, fn: Function) {
   return new Parser(
-    memoize(
-      memoizeCPS(
-        bind(p, (x: any) => {
-          return success(fn(x));
-        })
-      )
+    memoizeCPS(
+      bind(p, (x: any) => {
+        return success(fn(x));
+      })
     )
   );
 }
@@ -112,13 +99,11 @@ export function seq(...args: Parser[]) {
   };
 
   return new Parser(
-    memoize(
-      memoizeCPS(
-        // @ts-ignore
-        args.reduce((acc, parser) => {
-          return seq2(acc, parser);
-        })
-      )
+    memoizeCPS(
+      // @ts-ignore
+      args.reduce((acc, parser) => {
+        return seq2(acc, parser);
+      })
     )
   );
 }
@@ -168,26 +153,10 @@ export function parse(parser: any) {
 
 export function lazy(p: () => Parser) {
   return new Parser(
-    memoize(
-      memoizeCPS((str: string, cont: Function) => {
-        p().run(str, cont);
-      })
-    )
+    memoizeCPS((str: string, cont: Function) => {
+      p().run(str, cont);
+    })
   );
-}
-
-//TODO: HANDLE MEMOIZATION
-function memoize(fn: Function) {
-  const cache = new Map<string, any>();
-  return function (...args: any[]) {
-    // if (cache.has(args.toString())) {
-    //   return cache.get(args.toString());
-    // }
-    //@ts-ignore
-    const result = fn.call(this, ...args);
-    // cache.set(args.toString(), result);
-    return result;
-  };
 }
 
 type entry = { continuations: any[]; results: any[] };

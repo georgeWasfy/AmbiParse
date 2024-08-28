@@ -50,6 +50,41 @@ function applyBinary(value: [number, string, number]): number {
       throw new Error(`Unknown binary operator`);
   }
 }
+//======Equivilant Grammar=========================================
+// expr -> expr "+" term
+// | expr "-" term
+// | term
+
+// term -> term "*" factor
+// | term "/" factor
+// | factor
+
+// factor -> "(" expr ")"
+// | num
+
+// const expr_parser =
+//   alt(
+//     apply(lazy(()=>seq(expr_parser, ADD, term_parser)), applyBinary),
+//     apply(lazy(()=>seq(expr_parser, SUB, term_parser)), applyBinary),
+//     lazy(()=>term_parser)
+//   )
+
+// const term_parser = lazy(() =>
+//   alt(
+//     apply(seq(term_parser, MUL, factor_parser), applyBinary),
+//     apply(seq(term_parser, DIV, factor_parser), applyBinary),
+//     factor_parser
+//   )
+// );
+
+// const factor_parser = lazy(() =>
+//   alt(
+//     apply(seq(LPAREN, expr_parser, RPAREN), applyFactor),
+//     apply(NUMBERS, applyNumber)
+//   )
+// );
+//=======================================================================================
+
 
 /*
 TERM

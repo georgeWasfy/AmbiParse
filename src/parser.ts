@@ -108,6 +108,37 @@ export function seq(...args: Parser[]) {
   );
 }
 
+export function optional(p: Parser) {
+  return new Parser(
+    memoizeCPS(
+      optionalBind(p, () => {
+        return success([]);
+      })
+    )
+  );
+}
+
+export function optionalBind(p: Parser | Function, fn: Function) {
+  return (str: string, cont: Function) => {
+    if (p instanceof Parser) {
+      return p.run(str, (result: any) => {
+        if (result.hasOwnProperty("value")) {
+          return fn(result.value)(result.rest, cont);
+        } else {
+          return fn()(result.rest, cont);
+        }
+      });
+    }
+    return p(str, (result: any) => {
+      if (result.hasOwnProperty("value")) {
+        return fn(result.value)(result.rest, cont);
+      } else {
+        return fn()(result.rest, cont);
+      }
+    });
+  };
+}
+
 export function bind(p: Parser | Function, fn: Function) {
   return (str: string, cont: Function) => {
     if (p instanceof Parser) {

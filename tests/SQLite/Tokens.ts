@@ -1,62 +1,54 @@
 import { alt, match, matchPattern, seq } from "../../src/parser";
 
-const matchParser = match();
-const matchInParser = matchPattern();
-const altParser = alt();
-const seqParser = seq();
 
-export const DOT = matchParser(".");
-export const COMMA = matchParser(",");
-export const OPEN_PAR = matchParser("(");
-export const CLOSE_PAR = matchParser(")");
-export const SINGLE_QUOTE = matchParser("'");
-export const MINUS = matchParser("-");
-export const PLUS = matchParser("+");
-export const TILDE = matchParser("~");
-export const NOT = matchParser("NOT");
-export const PIPE = matchParser("|");
-export const PIPE2 = matchParser("||");
-export const STAR = matchParser("*");
-export const DIV = matchParser("/");
-export const MOD = matchParser("%");
-export const AS = matchParser("AS");
+export const DOT = match(".");
+export const COMMA = match(",");
+export const OPEN_PAR = match("(");
+export const CLOSE_PAR = match(")");
+export const SINGLE_QUOTE = match("'");
+export const MINUS = match("-");
+export const PLUS = match("+");
+export const TILDE = match("~");
+export const NOT = match("NOT");
+export const PIPE = match("|");
+export const PIPE2 = match("||");
+export const STAR = match("*");
+export const DIV = match("/");
+export const MOD = match("%");
+export const AS = match("AS");
 
-export const LT2 = matchParser("<<");
-export const GT2 = matchParser(">>");
-export const AMP = matchParser("&");
+export const LT2 = match("<<");
+export const GT2 = match(">>");
+export const AMP = match("&");
 
-export const LT = matchParser("<");
-export const LT_EQ = matchParser("<=");
-export const GT = matchParser(">");
-export const GT_EQ = matchParser(">=");
+export const LT = match("<");
+export const LT_EQ = match("<=");
+export const GT = match(">");
+export const GT_EQ = match(">=");
 
-export const AND = matchParser("AND");
-export const OR = matchParser("OR");
+export const AND = match("AND");
+export const OR = match("OR");
 
-export const CHARACTERS = matchInParser("^[A-Za-z]");
-export const NUMBERS = matchInParser(`^\\d+(\\.\\d+)?`);
+export const CHARACTERS = matchPattern("^[A-Za-z]");
+export const NUMBERS = matchPattern(`^\\d+(\\.\\d+)?`);
 export const DIGIT = "[0-9]";
-export const DIGITS = "^[0-9]";
+export const DIGITS = match("^[0-9]");
 export const HEX_DIGIT = "[0-9A-F]";
-export const NUMERIC_LITERAL = matchInParser(
+export const NUMERIC_LITERAL = matchPattern(
   `^((${DIGIT}+ ('.' ${DIGIT}*)?) | ('.' ${DIGIT}+)) ('E' [-+]? ${DIGIT}+)? | '0x' ${HEX_DIGIT}+`
 );
 
-export const KEYWORD = altParser(
-  () => matchParser("RENAME"),
-  () => matchParser("TO"),
-  () => matchParser("DROP"),
-  () => matchParser("COLUMN"),
-  () => matchParser("ALTER"),
-  () => matchParser("TABLE"),
-  () => matchParser("WITH"),
-  () => matchParser("RECUSIVE")
+export const KEYWORD = alt(
+  match("RENAME"),
+  match("TO"),
+  match("DROP"),
+  match("COLUMN"),
+  match("ALTER"),
+  match("TABLE"),
+  match("WITH"),
+  match("RECUSIVE")
 );
-export const STRING_LITERAL = seqParser(
-  () => SINGLE_QUOTE,
-  () => CHARACTERS,
-  () => SINGLE_QUOTE
-);
+export const STRING_LITERAL = seq(SINGLE_QUOTE, CHARACTERS, SINGLE_QUOTE);
 // literal_value
 //     : NUMERIC_LITERAL
 //     | STRING_LITERAL
@@ -67,17 +59,17 @@ export const STRING_LITERAL = seqParser(
 //     | CURRENT_TIME_
 //     | CURRENT_DATE_
 //     | CURRENT_TIMESTAMP_
-export const LITERAL_VALUE = altParser(
-  () => NUMERIC_LITERAL,
-  () => STRING_LITERAL,
-  () => matchParser("NULL"),
-  () => matchParser("TRUE"),
-  () => matchParser("FALSE")
+export const LITERAL_VALUE = alt(
+  NUMERIC_LITERAL,
+  STRING_LITERAL,
+  match("NULL"),
+  match("TRUE"),
+  match("FALSE")
 );
 
-export const IDENTIFIER = altParser(
-  () => matchInParser(`"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"`), //characters encapsulated ""
-  () => matchInParser("`(?:[^`]|``)*`"), // characters encapsulated ``
-  () => matchInParser("\\[([^\\]]*)\\]"), // characters encapsulated []
-  () => matchInParser("[A-Z_\u007F-\uFFFF][A-Z_0-9\u007F-\uFFFF]*")
+export const IDENTIFIER = alt(
+  matchPattern(`"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"`), //characters encapsulated ""
+  matchPattern("`(?:[^`]|``)*`"), // characters encapsulated ``
+  matchPattern("\\[([^\\]]*)\\]"), // characters encapsulated []
+  matchPattern("[A-Z_\u007F-\uFFFF][A-Z_0-9\u007F-\uFFFF]*")
 );

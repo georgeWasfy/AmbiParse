@@ -111,8 +111,8 @@ export function seq(...args: Parser[]) {
 export function optional(p: Parser) {
   return new Parser(
     memoizeCPS(
-      optionalBind(p, () => {
-        return success([]);
+      optionalBind(p, (v: any) => {
+        return success(v ?? []);
       })
     )
   );

@@ -10,6 +10,7 @@ A parser combinator library written in typescript with support for left recursiv
 |[seq](#seq)|takes any number of parsers and parses the sequence of the provided parsers in order 
 |[optional](#optional)|takes a parser and tries to parse using this parser, it succeeds if it is able to parse or not
 |[apply](#apply)|takes a parser and a function and applies the function to the parser result
+|[lazy](#apply)|takes a function which returns a parser, used for delaying execution for a parser, used to support left recursive grammars
 
 ## Basic Usage
 
@@ -106,6 +107,32 @@ const parser = apply(matchPattern(`^\\d+(\\.\\d+)?`), applyNumber);
 parser.run("12.222", console.log);
 ```
 > { rest: '', value: 12.222 }
+
+### lazy
+Delays the execution of **term** until it matches the first character "a", then returns to the execution of **term** to avoid infinite recursing.
+
+This parser matches the sequence ***ab*** or ***aab***
+
+```ts
+import { match, lazy, alt, seq } from "parser";
+
+//  GRAMMAR
+// expr -> term "b"
+// term -> term "a"| "a"
+
+const term = alt(
+  seq(
+    lazy(() => term),
+    match("a")
+  ),
+  match("a")
+);
+const expr = seq(term, match("b"));
+expr.run("aab", console.log);
+expr.run("ab", console.log);
+```
+> { rest: '', value: [ 'a', 'a', 'b' ] }\
+> { rest: '', value: [ 'a', 'b' ] }
 
 ## Resources
 - https://www.cs.nott.ac.uk/~pszgmh/monparsing.pdf

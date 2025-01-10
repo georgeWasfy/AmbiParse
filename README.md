@@ -4,13 +4,13 @@ A parser combinator library written in typescript with support for left recursiv
 ## Available Parsers
 |Parsers|Description
 |:-|:-|
-|[match](#match)|takes a string and parses an exact match of that string
-|[matchPattern](#matchpattern)|takes a string representation of a regular expression and parses the first match for that regex
-|[alt](#alt)|takes any number of parsers and parses using either of the provided parsers (first match) 
-|[seq](#seq)|takes any number of parsers and parses the sequence of the provided parsers in order 
-|[optional](#optional)|takes a parser and tries to parse using this parser, it succeeds if it is able to parse or not
-|[apply](#apply)|takes a parser and a function and applies the function to the parser result
-|[lazy](#apply)|takes a function which returns a parser, used for delaying execution for a parser, used to support left recursive grammars
+|[match](#match)|takes a string and parses an exact match of that string.
+|[matchPattern](#matchpattern)|takes a string representation of a regular expression and parses the first match for that regex.
+|[alt](#alt)|takes any number of parsers and parses using either of the provided parsers (first match).
+|[seq](#seq)|takes any number of parsers and parses the sequence of the provided parsers in order.
+|[optional](#optional)|takes a parser and tries to parse using this parser, it succeeds if it is able to parse or not.
+|[apply](#apply)|takes a parser and a function and applies the function to the parser result.
+|[lazy](#lazy)|takes a function which returns a parser, used for delaying execution for a parser to support left recursive grammars.
 
 ## Basic Usage
 

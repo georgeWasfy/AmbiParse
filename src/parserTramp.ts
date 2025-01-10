@@ -92,18 +92,8 @@ export function optional() {
   const success = succeed();
   return memoize((p: any) => {
     return optionalBind(p(), (v: any) => {
-    //   console.log("🚀 ~ optionalBind ~ v:", v);
       return success(v ?? []);
     });
-    // return (str: string, tramp: Tramp, cont: Function) => {
-    //   //   tramp.push(p(), str, cont);
-    //   //     //   tramp.push(success(''), str, cont);
-    //   //     return success([])
-    //   return optionalBind(p, (v: any) => {
-    //     console.log("🚀 ~ optionalBind ~ v:", v)
-    //     return success( v ??[]);
-    //   });
-    // };
   });
 }
 
@@ -114,7 +104,6 @@ export function optionalBind(p: any, fn: Function) {
         return fn(result.value)(result.rest, tramp, cont);
       } else {
           return fn()(result.rest, tramp, cont);
-        //   return cont(result)
       }
     });
   };
@@ -132,20 +121,6 @@ export function optionalBind(p: any, fn: Function) {
 // }
 export function seq() {
   const success = succeed();
-
-  //   const seq2 = (a: any, b: any) => {
-  //     console.log("🚀 ~ seq2 ~ b:", b.toString());
-  //     console.log("🚀 ~ seq2 ~ a:", a.toString());
-  //     return bind(a(), (x: any) => {
-  //       console.log("🚀 ~ returnbind ~ x:", x);
-  //       return bind(b(), (y: any) => {
-  //         const curr = Array.isArray(x) ? x : [x];
-  //         const nxt = Array.isArray(y) ? y : [y];
-  //         return success([...curr, ...nxt]);
-  //       });
-  //     });
-  //   };
-
   return memoize((...args: any[]) => {
     const processArgs = (index: number, acc: any[]): any => {
       // Base case: if we've processed all args, return success with an empty string
@@ -153,9 +128,7 @@ export function seq() {
         return success([]);
       }
       return bind(args[index](), (currentResult: any) => {
-        console.log("🚀 ~ returnbind ~ currentResult:", currentResult)
         return bind(processArgs(index + 1, [...acc]), (nextResult: any) => {
-            console.log("🚀 ~ returnbind ~ nextResult:", nextResult)
           const curr = Array.isArray(currentResult)
             ? currentResult
             : [currentResult];
@@ -171,7 +144,6 @@ export function seq() {
 export function bind(p: any, fn: Function) {
     return (str: string, tramp: Tramp, cont: Function) => {
     return p(str, tramp, (result: any) => {
-      //   console.log("🚀 ~ returnp ~ result:", result)
       if (result.hasOwnProperty("value")) {
         return fn(result.value)(result.rest, tramp, cont);
       } else {
@@ -206,9 +178,7 @@ export function parse(parser: any) {
 function memoize(fn: Function) {
   const cache = new Map<string, any>();
   return function (...args: any[]) {
-    // console.log("🚀 ~ memoize ~ cache:", [...cache.entries()]);
 
-    // console.log("🚀 ~ args:", args.filter(Boolean).toString());
     if (cache.has(args.filter(Boolean).toString())) {
       return cache.get(args.filter(Boolean).toString());
     }

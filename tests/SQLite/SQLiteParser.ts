@@ -271,7 +271,7 @@ const select_core = seq(
 
 const select_stmt = seq(
   optional(common_table_stmt),
-  select_core
+  optional(select_core)
   //  alt( seq(
   //      coumpound_operator,
   //      select_core
@@ -285,7 +285,7 @@ const select_stmt = seq(
 // const result = parser("WITH RECURSIVE users (password , useername) AS (SELECT *)");
 // console.log("~ result:", JSON.stringify(result));
 
-select_stmt.run("WITH (SELECT *)", console.log);
+select_stmt.run("WITH RECURSIVE (SELECT *)", console.log);
 
 // const parser = parse(select_stmt);
 // const result = parser("WITH RECURSIVE (SELECT *)");

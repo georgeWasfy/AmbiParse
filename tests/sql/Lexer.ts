@@ -9,45 +9,8 @@ export const STAR = match("*");
 export const DOT = match(".");
 export const COMMA = match(",");
 
-export const OPEN_PAR = match("(");
-export const CLOSE_PAR = match(")");
-export const SINGLE_QUOTE = match("'");
-export const MINUS = match("-");
-export const PLUS = match("+");
-export const TILDE = match("~");
-export const PIPE = match("|");
-export const PIPE2 = match("||");
-export const DIV = match("/");
-export const MOD = match("%");
-export const AS = match("AS");
-
-export const LT2 = match("<<");
-export const GT2 = match(">>");
-export const AMP = match("&");
-
-export const LT = match("<");
-export const LT_EQ = match("<=");
-export const GT = match(">");
-export const GT_EQ = match(">=");
-
 export const IDENTIFIER = matchPattern("^([a-zA-Z_$][a-zA-Z0-9_$]*)");
-export const NUMBERS = matchPattern(`^\\d+(\\.\\d+)?`);
-export const DIGIT = "[0-9]";
-export const DIGITS = match("^[0-9]");
-export const HEX_DIGIT = "[0-9A-F]";
-export const NUMERIC_LITERAL = matchPattern(
-  `^((${DIGIT}+ ('.' ${DIGIT}*)?) | ('.' ${DIGIT}+)) ('E' [-+]? ${DIGIT}+)? | '0x' ${HEX_DIGIT}+`
-);
-export const KEYWORD = alt(
-  match("RENAME"),
-  match("TO"),
-  match("DROP"),
-  match("COLUMN"),
-  match("ALTER"),
-  match("TABLE"),
-  match("WITH"),
-  match("RECUSIVE")
-);
+
 export const SELECT = apply(
   seq(
     alt(match("S"), match("s")),

@@ -1,18 +1,22 @@
-import { alt, match, matchPattern, seq } from "../../src/parser";
+import { alt, apply, match, matchPattern, seq } from "../../src/parser";
 
+type GenericObject<T> = {
+  type: string;
+  value: T;
+};
 
+export const STAR = match("*");
 export const DOT = match(".");
 export const COMMA = match(",");
+
 export const OPEN_PAR = match("(");
 export const CLOSE_PAR = match(")");
 export const SINGLE_QUOTE = match("'");
 export const MINUS = match("-");
 export const PLUS = match("+");
 export const TILDE = match("~");
-export const NOT = match("NOT");
 export const PIPE = match("|");
 export const PIPE2 = match("||");
-export const STAR = match("*");
 export const DIV = match("/");
 export const MOD = match("%");
 export const AS = match("AS");
@@ -26,10 +30,7 @@ export const LT_EQ = match("<=");
 export const GT = match(">");
 export const GT_EQ = match(">=");
 
-export const AND = match("AND");
-export const OR = match("OR");
-
-export const CHARACTERS = matchPattern("^[A-Za-z]");
+export const IDENTIFIER = matchPattern("^([a-zA-Z_$][a-zA-Z0-9_$]*)");
 export const NUMBERS = matchPattern(`^\\d+(\\.\\d+)?`);
 export const DIGIT = "[0-9]";
 export const DIGITS = match("^[0-9]");
@@ -37,7 +38,6 @@ export const HEX_DIGIT = "[0-9A-F]";
 export const NUMERIC_LITERAL = matchPattern(
   `^((${DIGIT}+ ('.' ${DIGIT}*)?) | ('.' ${DIGIT}+)) ('E' [-+]? ${DIGIT}+)? | '0x' ${HEX_DIGIT}+`
 );
-
 export const KEYWORD = alt(
   match("RENAME"),
   match("TO"),
@@ -48,53 +48,66 @@ export const KEYWORD = alt(
   match("WITH"),
   match("RECUSIVE")
 );
-export const STRING_LITERAL = seq(SINGLE_QUOTE, CHARACTERS, SINGLE_QUOTE);
-// literal_value
-//     : NUMERIC_LITERAL
-//     | STRING_LITERAL
-//     | BLOB_LITERAL
-//     | NULL_
-//     | TRUE_
-//     | FALSE_
-//     | CURRENT_TIME_
-//     | CURRENT_DATE_
-//     | CURRENT_TIMESTAMP_
-export const LITERAL_VALUE = alt(
-  NUMERIC_LITERAL,
-  STRING_LITERAL,
-  match("NULL"),
-  match("TRUE"),
-  match("FALSE")
+export const SELECT = apply(
+  seq(
+    alt(match("S"), match("s")),
+    alt(match("E"), match("e")),
+    alt(match("L"), match("l")),
+    alt(match("E"), match("e")),
+    alt(match("C"), match("c")),
+    alt(match("T"), match("t"))
+  ),
+  (v: string[]) => {
+    return { type: "SELECT", value: v.join("") };
+  }
+);
+export const FROM = apply(
+  seq(
+    alt(match("F"), match("f")),
+    alt(match("R"), match("r")),
+    alt(match("O"), match("o")),
+    alt(match("M"), match("m"))
+  ),
+  (v: string[]) => {
+    return { type: "FROM", value: v.join("") };
+  }
 );
 
-export const IDENTIFIER = alt(
-  matchPattern(`"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"`), //characters encapsulated ""
-  matchPattern("`(?:[^`]|``)*`"), // characters encapsulated ``
-  matchPattern("\\[([^\\]]*)\\]"), // characters encapsulated []
-  matchPattern("[A-Z_\u007F-\uFFFF][A-Z_0-9\u007F-\uFFFF]*")
-);
+// ==================================APPLY MODIFIERS================================================
 
-export const applyKeyword = (keyword: string) => {
-  return { type: "keyword", value: keyword };
+export const applyTable = (table: string) => {
+  return { type: "TABLE", value: table };
 };
 
-export const applyName = (name: string) => {
-  return { type: "name", value: name };
+export const applyFields = (
+  v: string | (string | GenericObject<any> | string[])[]
+) => {
+  if (Array.isArray(v)) {
+    let res = v
+      .map((item) => {
+        if (typeof item === "string") {
+          return item;
+        } else if (Array.isArray(item)) {
+          return item;
+        } else if (typeof item === "object" && item.value) {
+          return item.value;
+        } else {
+          return [];
+        }
+      })
+      .flat();
+    return { type: "Fields", value: res };
+  }
+  return { type: "Fields", value: [v] };
 };
-
-export const applyDropColumn = (v: { type: string; value: string }[]) => {
-  return { type: "drop_column_statement", value: v };
+export const applySelect = ([select, fields, from, table]: [
+  GenericObject<string>,
+  GenericObject<string[]>,
+  GenericObject<string>,
+  GenericObject<string>
+]) => {
+  return {
+    type: "Statement",
+    value: { type: select.type, fields: fields.value, relation: table.value },
+  };
 };
-
-export const applyRename = (v: { type: string; value: string }[]) => {
-  return { type: "rename_column_statement", value: v };
-};
-
-export const applySchemaName = (v: [{ type: string; value: string }, "."]) => {
-  return { type: "schema_name", value: v[0] };
-};
-
-export const applyTableName = (v: { type: string; value: string }) => {
-  return { type: "table_name", value: v };
-};
-

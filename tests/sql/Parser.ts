@@ -1,7 +1,8 @@
 import { alt, apply, lazy, parse, seq } from "../../src/parser";
 import {
   applyDot,
-  applyFields,
+  applyExpressions,
+  applyField,
   applySelect,
   applyTable,
   COMMA,
@@ -17,32 +18,37 @@ import {
 
 const table = apply(IDENTIFIER, applyTable);
 const dot = apply(seq(table, DOT, IDENTIFIER), applyDot);
-const value = alt(STRING_LITERAL, NUMERIC_LITERAL);
-const constants = apply(alt(
+const constant = alt(STRING_LITERAL, NUMERIC_LITERAL);
+const column = apply(IDENTIFIER, applyField);
+
+const constant_expressions = alt(
   seq(
-    value,
+    constant,
     apply(COMMA, () => {}),
-    lazy(() => constants)
+    lazy(() => expressions)
   ),
-  value
-),applyFields)
-const fields = apply(
-  alt(
-    seq(
-      alt(IDENTIFIER, dot),
-      apply(COMMA, () => {}),
-      lazy(() => fields)
-    ),
-    IDENTIFIER,
-    dot,
-    STAR
-  ),
-  applyFields
+  constant
 );
+
+const column_expressions = alt(
+  seq(
+    alt(dot, column),
+    apply(COMMA, () => {}),
+    lazy(() => expressions)
+  ),
+  dot,
+  column
+);
+
+const expressions = apply(
+  alt(STAR, column_expressions, constant_expressions),
+  applyExpressions
+);
+
 export const select_stmt = apply(
-  seq(SELECT, alt(seq(constants, SEMICOLON), seq(fields, FROM, table, SEMICOLON))),
+  seq(SELECT, expressions, alt(SEMICOLON, seq(FROM, table, SEMICOLON))),
   applySelect
 );
 const expParser = parse(select_stmt);
-const result = expParser(" SElect 'hello', 'sql' , 1 ,1.5,1.0e5, 0x123ABC ;");
-console.log(JSON.stringify(result[0].value));
+const result = expParser(" SElect 0x123ABC ;");
+// console.log(JSON.stringify(result[0].value));

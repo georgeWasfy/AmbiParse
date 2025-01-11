@@ -5,7 +5,9 @@ type GenericObject<T> = {
   value: T;
 };
 
-export const STAR = match("*");
+export const STAR = apply(match("*"), (field: string) => {
+  return { type: "FIELD_expr", value: field };
+});
 export const DOT = match(".");
 export const COMMA = match(",");
 export const SINGLE_QUOTE = match("'");
@@ -59,9 +61,37 @@ export const FROM = apply(
 );
 
 // ==================================APPLY MODIFIERS================================================
+const groupFieldsBy = (v: GenericObject<any>[], s:string) => {
+  const expressionsObj = v.find((item) => item && item.type === s);
 
+  if (expressionsObj) {
+    const otherElements = v.filter(
+      (item) => item !== expressionsObj && item !== undefined
+    );
+
+    if (expressionsObj.value) {
+      otherElements.forEach((element) => {
+        if (
+          !expressionsObj.value.some(
+            (val: any) => JSON.stringify(val) === JSON.stringify(element)
+          )
+        ) {
+          expressionsObj.value.push(element);
+        }
+      });
+    } else {
+      expressionsObj.value = otherElements;
+    }
+  }
+
+  return expressionsObj;
+};
 export const applyTable = (table: string) => {
-  return { type: "TABLE", value: table };
+  return { type: "TABLE_expr", value: table };
+};
+
+export const applyField = (field: string) => {
+  return { type: "FIELD_expr", value: field };
 };
 
 export const applyDot = ([table, dot, field]: [
@@ -69,29 +99,14 @@ export const applyDot = ([table, dot, field]: [
   string,
   string
 ]) => {
-  return { type: "DOT", value: { table: table.value, field } };
+  return { type: "DOT_expr", value: { table: table.value, field } };
 };
 
-export const applyFields = (
-  v: GenericObject<any> | string | (string | GenericObject<any> | string[])[]
+export const applyExpressions = (
+  v: GenericObject<any> | GenericObject<any>[]
 ) => {
-  if (Array.isArray(v)) {
-    let res = v
-      .map((item) => {
-        if (typeof item === "string") {
-          return item;
-        } else if (Array.isArray(item)) {
-          return item;
-        } else if (typeof item === "object" && item.value) {
-          return item.value;
-        } else {
-          return [];
-        }
-      })
-      .flat();
-    return { type: "Fields", value: res };
-  }
-  return { type: "Fields", value: [typeof v === "object" ? v.value : v] };
+  if (Array.isArray(v)) return groupFieldsBy(v,'expressions')
+  return { type: "expressions", value: [v] };
 };
 
 export const applySelect = ([select, fields, from, table]: [
@@ -102,6 +117,10 @@ export const applySelect = ([select, fields, from, table]: [
 ]) => {
   return {
     type: "Statement",
-    value: { type: select.type, fields: fields.value, relation: table?.value ?? null },
+    value: {
+      type: select.type,
+      expressions: fields.value,
+      relation: table?.value ?? null,
+    },
   };
 };

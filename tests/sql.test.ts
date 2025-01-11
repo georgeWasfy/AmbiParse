@@ -8,7 +8,14 @@ describe("SQL::simple select", () => {
     const result = expParser("SElEcT id,name from Users;")[0].value;
     const expected = {
       type: "Statement",
-      value: { type: "SELECT", fields: ["id", "name"], relation: "Users" },
+      value: {
+        type: "SELECT",
+        expressions: [
+          { type: "FIELD_expr", value: "name" },
+          { type: "FIELD_expr", value: "id" },
+        ],
+        relation: "Users",
+      },
     };
     expect(result).toEqual(expected);
   });
@@ -17,7 +24,11 @@ describe("SQL::simple select", () => {
     const result = expParser("SElEcT * from Users;")[0].value;
     const expected = {
       type: "Statement",
-      value: { type: "SELECT", fields: ["*"], relation: "Users" },
+      value: {
+        type: "SELECT",
+        expressions: [{ type: "FIELD_expr", value: "*" }],
+        relation: "Users",
+      },
     };
     expect(result).toEqual(expected);
   });
@@ -29,9 +40,9 @@ describe("SQL::simple select", () => {
       type: "Statement",
       value: {
         type: "SELECT",
-        fields: [
-          { table: "Users", field: "id" },
-          { table: "Users", field: "name" },
+        expressions: [
+          { type: "DOT_expr", value: { table: "Users", field: "name" } },
+          { type: "DOT_expr", value: { table: "Users", field: "id" } },
         ],
         relation: "Users",
       },
@@ -43,7 +54,11 @@ describe("SQL::simple select", () => {
     const result = expParser("SElect 'Foo' ;")[0].value;
     const expected = {
       type: "Statement",
-      value: { type: "SELECT", fields: ["Foo"], relation: null },
+      value: {
+        type: "SELECT",
+        expressions: [{ type: "STRING", value: "Foo" }],
+        relation: null,
+      },
     };
     expect(result).toEqual(expected);
   });
@@ -52,7 +67,11 @@ describe("SQL::simple select", () => {
     const result = expParser("SElect 0x123ABC ;")[0].value;
     const expected = {
       type: "Statement",
-      value: { type: "SELECT", fields: [new Number(0x123ABC)], relation: null },
+      value: {
+        type: "SELECT",
+        expressions: [{ type: "NUMBER", value: new Number(0x123abc) }],
+        relation: null,
+      },
     };
     expect(result).toEqual(expected);
   });
@@ -65,13 +84,13 @@ describe("SQL::simple select", () => {
       type: "Statement",
       value: {
         type: "SELECT",
-        fields: [
-          "hello",
-          "sql",
-          new Number(1),
-          new Number(1.5),
-          new Number(1.0e5),
-          new Number(0x123ABC),
+        expressions: [
+          { type: "NUMBER", value: new Number(0x123abc) },
+          { type: "NUMBER", value: new Number(1.0e5) },
+          { type: "NUMBER", value: new Number(1.5) },
+          { type: "NUMBER", value: new Number(1) },
+          { type: "STRING", value: "sql" },
+          { type: "STRING", value: "hello" },
         ],
         relation: null,
       },

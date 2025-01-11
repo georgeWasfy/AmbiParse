@@ -42,8 +42,16 @@ export const applyTable = (table: string) => {
   return { type: "TABLE", value: table };
 };
 
+export const applyDot = ([table, dot, field]: [
+  GenericObject<string>,
+  string,
+  string
+]) => {
+  return { type: "DOT", value:{table: table.value, field}};
+};
+
 export const applyFields = (
-  v: string | (string | GenericObject<any> | string[])[]
+  v: GenericObject<any>|string | (string | GenericObject<any> | string[])[]
 ) => {
   if (Array.isArray(v)) {
     let res = v
@@ -61,7 +69,7 @@ export const applyFields = (
       .flat();
     return { type: "Fields", value: res };
   }
-  return { type: "Fields", value: [v] };
+  return { type: "Fields", value: [typeof v === "object" ? v.value : v] };
 };
 export const applySelect = ([select, fields, from, table]: [
   GenericObject<string>,

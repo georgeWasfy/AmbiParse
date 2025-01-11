@@ -21,4 +21,20 @@ describe("SQL::simple select", () => {
     };
     expect(result).toEqual(expected);
   });
+    
+  it("simple select with Dot notation for fields", () => {
+    const result = expParser("SElect Users.id, Users.name from Users")[0].value;
+    const expected = {
+      type: "Statement",
+      value: {
+        type: "SELECT",
+        fields: [
+          { table: "Users", field: "id" },
+          { table: "Users", field: "name" },
+        ],
+        relation: "Users",
+      },
+    };
+    expect(result).toEqual(expected);
+  });
 });

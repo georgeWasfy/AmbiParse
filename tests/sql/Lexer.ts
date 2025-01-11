@@ -17,10 +17,10 @@ export const HEX_DIGIT = "[0-9A-Fa-f]";
 
 export const NUMERIC_LITERAL = apply(
   alt(
-    matchPattern(`^0x${HEX_DIGIT}+`),
-    matchPattern(
-      `^[-+]?(${DIGIT}+(?:\\.{DIGIT}*)?(?:[Ee][-+]?${DIGIT}+)?|\\.{DIGIT}+(?:[Ee][-+]?${DIGIT}+)?)`
-    )
+    matchPattern(`^0x${HEX_DIGIT}+`), //HEX
+    matchPattern(`^[-+]?${DIGIT}+(?:[Ee][-+]?${DIGIT}+)?`), //int With Exponent
+    matchPattern(`^[-+]?${DIGIT}+\.${DIGIT}*(?:[Ee][-+]?${DIGIT}+)?`), //decimal With Exponent
+    matchPattern(`^[-+]?\.${DIGIT}+(?:[Ee][-+]?${DIGIT}+)?`) //decimal Starting With Dot
   ),
   (s: string) => {
     return { type: "NUMBER", value: new Number(s) };
@@ -93,6 +93,7 @@ export const applyFields = (
   }
   return { type: "Fields", value: [typeof v === "object" ? v.value : v] };
 };
+
 export const applySelect = ([select, fields, from, table]: [
   GenericObject<string>,
   GenericObject<string[]>,

@@ -8,8 +8,30 @@ type GenericObject<T> = {
 export const STAR = match("*");
 export const DOT = match(".");
 export const COMMA = match(",");
+export const SINGLE_QUOTE = match("'");
+export const SEMICOLON = match(";");
 
 export const IDENTIFIER = matchPattern("^([a-zA-Z_$][a-zA-Z0-9_$]*)");
+export const DIGIT = "[0-9]";
+export const HEX_DIGIT = "[0-9A-Fa-f]";
+
+export const NUMERIC_LITERAL = apply(
+  alt(
+    matchPattern(`^0x${HEX_DIGIT}+`),
+    matchPattern(
+      `^[-+]?(${DIGIT}+(?:\\.{DIGIT}*)?(?:[Ee][-+]?${DIGIT}+)?|\\.{DIGIT}+(?:[Ee][-+]?${DIGIT}+)?)`
+    )
+  ),
+  (s: string) => {
+    return { type: "NUMBER", value: new Number(s) };
+  }
+);
+export const STRING_LITERAL = apply(
+  seq(SINGLE_QUOTE, IDENTIFIER, SINGLE_QUOTE),
+  ([_, s, __]: [string, string, string]) => {
+    return { type: "STRING", value: s };
+  }
+);
 
 export const SELECT = apply(
   seq(
@@ -47,11 +69,11 @@ export const applyDot = ([table, dot, field]: [
   string,
   string
 ]) => {
-  return { type: "DOT", value:{table: table.value, field}};
+  return { type: "DOT", value: { table: table.value, field } };
 };
 
 export const applyFields = (
-  v: GenericObject<any>|string | (string | GenericObject<any> | string[])[]
+  v: GenericObject<any> | string | (string | GenericObject<any> | string[])[]
 ) => {
   if (Array.isArray(v)) {
     let res = v
@@ -79,6 +101,6 @@ export const applySelect = ([select, fields, from, table]: [
 ]) => {
   return {
     type: "Statement",
-    value: { type: select.type, fields: fields.value, relation: table.value },
+    value: { type: select.type, fields: fields.value, relation: table?.value ?? null },
   };
 };

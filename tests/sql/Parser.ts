@@ -18,6 +18,14 @@ import {
 const table = apply(IDENTIFIER, applyTable);
 const dot = apply(seq(table, DOT, IDENTIFIER), applyDot);
 const value = alt(STRING_LITERAL, NUMERIC_LITERAL);
+const constants = apply(alt(
+  seq(
+    value,
+    apply(COMMA, () => {}),
+    lazy(() => constants)
+  ),
+  value
+),applyFields)
 const fields = apply(
   alt(
     seq(
@@ -32,9 +40,9 @@ const fields = apply(
   applyFields
 );
 export const select_stmt = apply(
-  seq(SELECT, alt(seq(value, SEMICOLON), seq(fields, FROM, table, SEMICOLON))),
+  seq(SELECT, alt(seq(constants, SEMICOLON), seq(fields, FROM, table, SEMICOLON))),
   applySelect
 );
 const expParser = parse(select_stmt);
-const result = expParser(" SElect 0x123ABC ; ");
+const result = expParser(" SElect 'hello', 'sql' , 1 ,1.5,1.0e5, 0x123ABC ;");
 console.log(JSON.stringify(result[0].value));

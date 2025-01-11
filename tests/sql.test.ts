@@ -43,7 +43,7 @@ describe("SQL::simple select", () => {
     const result = expParser("SElect 'Foo' ;")[0].value;
     const expected = {
       type: "Statement",
-      value: { type: "SELECT", fields: "Foo", relation: null },
+      value: { type: "SELECT", fields: ["Foo"], relation: null },
     };
     expect(result).toEqual(expected);
   });
@@ -52,7 +52,29 @@ describe("SQL::simple select", () => {
     const result = expParser("SElect 0x123ABC ;")[0].value;
     const expected = {
       type: "Statement",
-      value: { type: "SELECT", fields: new Number(0x123ABC), relation: null },
+      value: { type: "SELECT", fields: [new Number(0x123ABC)], relation: null },
+    };
+    expect(result).toEqual(expected);
+  });
+
+  it("simple select multiple constants", () => {
+    const result = expParser(
+      "SElect 'hello', 'sql', 1 ,1.5,1.0e5, 0x123ABC ;"
+    )[0].value;
+    const expected = {
+      type: "Statement",
+      value: {
+        type: "SELECT",
+        fields: [
+          "hello",
+          "sql",
+          new Number(1),
+          new Number(1.5),
+          new Number(1.0e5),
+          new Number(0x123ABC),
+        ],
+        relation: null,
+      },
     };
     expect(result).toEqual(expected);
   });

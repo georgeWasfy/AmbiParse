@@ -64,11 +64,11 @@ export const D = match("d");
 export const L = match("l");
 
 export const IntegerLiteral = matchPattern(
-  "^(?:" +
+  "(?:" +
     "0[xX][0-9A-Fa-f_]+" + // HexIntegerLiteral
     "|" +
     "[0-9][0-9_]*" + // DecimalIntegerLiteral
-    ")[lL]?$" // Optional suffix
+    ")[lL]?" // Optional suffix
 );
 
 export const FloatingPointLiteral = matchPattern(
@@ -123,6 +123,8 @@ export const StringLiteral = matchPattern(
     '"$' // Closing quote
 );
 
+export const BooleanLiteral = alt(match("true"), match("false"));
+
 /********************************
  *      SEPARATOR LITERALS
  ********************************/
@@ -140,23 +142,24 @@ export const DOT = match(".");
 /********************************
  *      OPERATOR LITERALS
  ********************************/
+export const OPS = ["=", ">", "<", "<=", ">=", "!=", "!", "*", "**"];
 // Operators
-export const EQUAL = match("=");
-export const GT = match(">");
-export const LT = match("<");
-export const LE = match("<=");
-export const GE = match(">=");
-export const NOTEQUAL = match("!=");
-export const COLON = match(":");
-export const RARROW = match("->");
+export const EQUAL = matchPattern("=");
+export const GT = matchPattern(">");
+export const LT = matchPattern("<");
+export const LE = matchPattern("<=");
+export const GE = matchPattern(">=");
+export const NOTEQUAL = matchPattern("!=");
+export const COLON = matchPattern(":");
+export const RARROW = matchPattern("->");
 export const POW = match("**");
 export const ADD = match("+");
 export const SUB = match("-");
 export const MUL = match("*");
 export const DIV = match("/");
-export const BANG = match("!");
-export const NOT = match("not");
-export const AT = match("@");
+export const BANG = matchPattern("!");
+export const NOT = matchPattern("not");
+export const AT = matchPattern("@");
 
 /********************************
  *      IDENTIFIER
@@ -206,7 +209,7 @@ export const IDENTIFIER = alt(
  ********************************/
 // Whitespace
 export const WS = matchPattern(
-  "^[ \\t\\r\\n\\u000C\\u00A0]+" // Spaces, tabs, newlines, form feed, non-breaking space
+  "[ \\t\\r\\n\\u000C\\u00A0]" // Spaces, tabs, newlines, form feed, non-breaking space
 );
 
 // Block comments

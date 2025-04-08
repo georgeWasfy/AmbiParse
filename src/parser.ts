@@ -49,7 +49,7 @@ export function matchPattern(pattern: string) {
       let endIdx = 0;
       str = str.trim();
       let stringCopy = str;
-      const regexPattern = new RegExp(pattern, "i");
+      const regexPattern = new RegExp(pattern, "u");
       const matchFound = regexPattern.exec(stringCopy);
       if (matchFound) endIdx += matchFound[0].length;
       if (endIdx > 0) {

@@ -108,7 +108,7 @@ export const UnicodeEscape = matchPattern(
 
 // Complete StringLiteral parser
 export const StringLiteral = matchPattern(
-  '^"' + // Opening quote
+  '"' + // Opening quote
     "(" +
     "(?:" +
     '[^"\\\\]' + // Non-special characters
@@ -120,7 +120,7 @@ export const StringLiteral = matchPattern(
     "\\\\U[0-9A-Fa-f]{6}" + // 6-digit Unicode (extension)
     ")" +
     "*)" + // Zero or more characters
-    '"$' // Closing quote
+    '"' // Closing quote
 );
 
 export const BooleanLiteral = alt(match("true"), match("false"));
@@ -144,22 +144,22 @@ export const DOT = match(".");
  ********************************/
 export const OPS = ["=", ">", "<", "<=", ">=", "!=", "!", "*", "**"];
 // Operators
-export const EQUAL = matchPattern("=");
-export const GT = matchPattern(">");
-export const LT = matchPattern("<");
-export const LE = matchPattern("<=");
-export const GE = matchPattern(">=");
-export const NOTEQUAL = matchPattern("!=");
-export const COLON = matchPattern(":");
-export const RARROW = matchPattern("->");
+export const EQUAL = match("=");
+export const GT = match(">");
+export const LT = match("<");
+export const LE = match("<=");
+export const GE = match(">=");
+export const NOTEQUAL = match("!=");
+export const COLON = match(":");
+export const RARROW = match("->");
 export const POW = match("**");
 export const ADD = match("+");
 export const SUB = match("-");
 export const MUL = match("*");
 export const DIV = match("/");
-export const BANG = matchPattern("!");
-export const NOT = matchPattern("not");
-export const AT = matchPattern("@");
+export const BANG = match("!");
+export const NOT = match("not");
+export const AT = match("@");
 
 /********************************
  *      IDENTIFIER

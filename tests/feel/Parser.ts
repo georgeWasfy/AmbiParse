@@ -126,7 +126,14 @@ const interval = alt(
 
 const simplePositiveUnaryTest = alt(
   // Inequality intervals
-  apply(seq(alt(LT, GT, LE, GE), endpoint), ([op, end]: any) => {
+  apply(seq(LT, endpoint), ([op, end]: any) => {
+    // helper.enableDynamicResolution();
+    const result = { type: "InequalityInterval", operator: op, endpoint: end };
+    // helper.disableDynamicResolution();
+    return result;
+  }),
+
+  apply(seq(GT, endpoint), ([op, end]: any) => {
     // helper.enableDynamicResolution();
     const result = { type: "InequalityInterval", operator: op, endpoint: end };
     // helper.disableDynamicResolution();
@@ -134,7 +141,7 @@ const simplePositiveUnaryTest = alt(
   }),
 
   // Equality tests
-  apply(seq(alt(EQUAL, NOTEQUAL), endpoint), ([op, end]: any) => {
+  apply(seq(EQUAL, endpoint), ([op, end]: any) => {
     // helper.enableDynamicResolution();
     const result = { type: "EqualityTest", operator: op, endpoint: end };
     // helper.disableDynamicResolution();
@@ -201,33 +208,45 @@ const unaryTestsRoot = seq(unaryTests, EOF);
  **************************/
 // 4. Conditional Or Expression
 const parameters = lazy(() => formalParameters);
-const qualifiedName = apply(
-  alt(
-    apply(
-      seq(
-        apply(DOT, () => {}),
-        IDENTIFIER,
-        lazy(() => qualifiedName)
-      ),
-      (x: any) => {
-        console.log("qualifiedName", x);
-        return x;
-      }
+// more formally nameRefOtherToken should be ~(LPAREN|RPAREN|LBRACK|RBRACK|LBRACE|RBRACE|LT|GT|EQUAL|BANG|COMMA)
+// but this will do for now
+const nameRefOtherToken = IDENTIFIER;
+const nameRef = alt(
+  nameRefOtherToken,
+  apply(
+    seq(
+      apply(NOT, (token: any) => {
+        // helper.startVariable(token);
+        return token;
+      }),
+      lazy(() => nameRef)
     ),
-    IDENTIFIER
-  ),
-  (x: any) => {
-    console.log("qualifiedName", x);
-    return x;
-  }
+    ([first, rest]: any) => {
+      return first + rest;
+    }
+  )
 );
-const literal = alt(
-  apply(IntegerLiteral, (literal: any) => {
-    return {
-      type: "IntegerLiteral",
-      value: literal,
-    };
+
+const qualifiedName = alt(
+  apply(nameRef, (name: any) => {
+    // helper.recoverScope(name);
+    return name;
   }),
+  apply(
+    seq(
+      DOT,
+      lazy(() => qualifiedName)
+    ),
+    ([first, rest]: any) => {
+      const qn = [first, ...rest.map(([_, name]: any) => name)];
+      // helper.validateVariable({}, qn, qn[qn.length - 1]);
+      // rest.forEach(() => helper.dismissScope());
+      return qn;
+    }
+  )
+);
+
+const literal = alt(
   apply(IntegerLiteral, (literal: any) => {
     return {
       type: "IntegerLiteral",
@@ -446,10 +465,9 @@ const list = alt(
 );
 const primary = alt(
   // Case 1: literal
-  apply(literal, (val: any) => ({
-    type: "PrimaryLiteral",
-    value: val,
-  })),
+  apply(literal, (val: any) => {
+    return { type: "PrimaryLiteral", value: val };
+  }),
 
   // Case 2: for expression
   apply(forExpression, (expr: any) => ({
@@ -501,10 +519,9 @@ const primary = alt(
   ),
 
   // Case 9: unary test
-  apply(simplePositiveUnaryTest, (test: any) => ({
-    type: "PrimaryUnaryTest",
-    test,
-  })),
+  apply(simplePositiveUnaryTest, (test: any) => {
+    return { type: "PrimaryUnaryTest", test };
+  }),
 
   // Case 10: qualified name
   apply(qualifiedName, (name: any) => ({
@@ -512,40 +529,13 @@ const primary = alt(
     name,
   }))
 );
-// TO BE CHECKED
-const unaryExpressionNotPlusMinus = apply(
-  seq(
-    primary,
-    optional(
-      seq(
-        DOT,
-        apply(
-          seq(
-            // Recover scope and enable dynamic resolution
-            lazy(() => qualifiedName),
-            optional(parameters)
-          ),
-          ([name, params]: any) => ({
-            qualifiedName: name,
-            parameters: params || null,
-          })
-        )
-      )
-    )
-  ),
-  ([primaryExpr, optionalQualified]: any) => {
-    if (!optionalQualified) {
-      return { type: "UnaryExpression", primary: primaryExpr };
-    }
-    const { qualifiedName, parameters } = optionalQualified;
-    return {
-      type: "UnaryExpressionWithQualifiedName",
-      primary: primaryExpr,
-      qualifiedName,
-      parameters,
-    };
-  }
+const unaryExpressionNotPlusMinus = alt(
+  primary,
+  seq(primary, DOT, qualifiedName, parameters),
+  seq(primary, DOT, qualifiedName)
 );
+
+///////HERE: unaryExpressionNotPlusMinus tested////////////
 const unaryExpression = alt(
   apply(
     seq(
@@ -577,9 +567,7 @@ const unaryExpression = alt(
   seq(ADD, unaryExpressionNotPlusMinus)
 );
 
-///////HERE////////////
 const filterPathExpression = alt(
-  unaryExpression,
   apply(
     seq(
       lazy(() => filterPathExpression),
@@ -589,8 +577,8 @@ const filterPathExpression = alt(
     ),
     ([n0, _lbrack, exp, _rbrack]: any) => {
       return {
-        type: "FilterPathExpression",
-        n0,
+        type: "FilterPathExpressionWithBrackets",
+        name: n0,
         filter: exp,
       };
     }
@@ -603,12 +591,13 @@ const filterPathExpression = alt(
     ),
     ([n1, _dot, name]: any) => {
       return {
-        type: "FilterPathExpression",
-        n1,
+        type: "FilterPathExpressionWithDot",
+        name: n1,
         filter: name,
       };
     }
-  )
+  ),
+  unaryExpression
 );
 const powerExpression = alt(
   filterPathExpression,
@@ -622,11 +611,11 @@ const powerExpression = alt(
       // To handle the case of power ** as the first * will match with MUL symbol
       // TODO: this needs to be recursive and at each level check left and right
 
-      if (
-        (typeof left === "string" && OPS.some((op) => left.includes(op))) ||
-        (typeof right === "string" && OPS.some((op) => right.includes(op)))
-      )
-        return undefined;
+      // if (
+      //   (typeof left === "string" && OPS.some((op) => left.includes(op))) ||
+      //   (typeof right === "string" && OPS.some((op) => right.includes(op)))
+      // )
+      //   return undefined;
       return {
         type: "PowerExpression",
         operator: op,
@@ -648,11 +637,11 @@ const multiplicativeExpression = alt(
     ([left, op, right]: any) => {
       // To handle the case of power ** as the first * will match with MUL symbol
       // TODO: this needs to be recursive and at each level check left and right
-      if (
-        (typeof left === "string" && !OPS.some((op) => left.includes(op))) ||
-        (typeof right === "string" && !OPS.some((op) => right.includes(op)))
-      )
-        return undefined;
+      // if (
+      //   (typeof left === "string" && !OPS.some((op) => left.includes(op))) ||
+      //   (typeof right === "string" && !OPS.some((op) => right.includes(op)))
+      // )
+      //   return undefined;
       return {
         type: "MultiplicativeExpression",
         operator: op,
@@ -745,12 +734,17 @@ const comparisonExpression = alt(
   apply(
     seq(
       lazy(() => comparisonExpression),
-      alt(EQUAL, NOTEQUAL, seq(LT, EQUAL), seq(GT, EQUAL)),
+      alt(EQUAL, LT, GT),
       relationalExpression
     ),
     ([left, op, right]: any) => {
-      if (OPS.some((op) => left.includes(op)) || OPS.some((op) => right.includes(op)))
-        return undefined;
+      // console.log("🚀 ~ right:", right)
+      // console.log("🚀 ~ left:", left)
+      // if (
+      //   ( OPS.some((op) => left.includes(op))) ||
+      //   ( OPS.some((op) => right.includes(op)))
+      // )
+      //   return undefined;
       return {
         type: "ComparisonExpression",
         operator: op,
@@ -855,8 +849,9 @@ const expression = apply(textualExpression, (expr: any) => {
 
 const exprParser = parse(expression);
 const result = exprParser(`orders[status = "pending"].items[quantity > 10]`);
+// orders[status = "pending"].items[quantity > 10]
 console.log(JSON.stringify(result));
 
 // const exprParser = parse(IntegerLiteral)
-// const result = exprParser("b+");
+// const result = exprParser("te 10");
 // console.log(JSON.stringify(result));

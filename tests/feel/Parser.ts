@@ -407,9 +407,9 @@ const quantifiedExpression = alt(
   apply(
     seq(
       EVERY,
-      apply(iterationContexts, () => {
+      apply(iterationContext, (ctx: any) => {
         // helper.pushScope();
-        return null;
+        return ctx;
       }),
       SATISFIES,
       apply(
@@ -423,8 +423,9 @@ const quantifiedExpression = alt(
         }
       )
     ),
-    ([_every, _ctx, _sat, expr]: any) => ({
+    ([_every, ctx, _sat, expr]: any) => ({
       type: "QuantifiedExpressionEvery",
+      ctx,
       expression: expr,
     })
   )
@@ -839,7 +840,7 @@ const expression = apply(textualExpression, (expr: any) => {
 });
 
 const exprParser = parse(expression);
-const result = exprParser(`some x in [1,2,3] satisfies x > 2`);
+const result = exprParser(`every x in [1,2,3] satisfies x > 2`);
 // orders[status = "pending"].items[quantity > 10]
 console.log(JSON.stringify(result[0]));
 

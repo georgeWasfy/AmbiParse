@@ -142,7 +142,7 @@ export const DOT = match(".");
 /********************************
  *      OPERATOR LITERALS
  ********************************/
-export const OPS = ["=", ">", "<", "<=", ">=", "!=", "!", "*", "**"];
+export const OPS = ["=", ">", "<", "<=", ">=", "!=", "!", "*", "**", "."];
 // Operators
 export const EQUAL = match("=");
 export const GT = match(">");

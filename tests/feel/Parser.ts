@@ -1,4 +1,4 @@
-import { alt, apply, lazy, optional, parse, seq } from "../../src/parser";
+import { alt, apply, lazy, match, matchPattern, optional, parse, seq } from "../../src/parser";
 import {
   LPAREN,
   RPAREN,
@@ -210,7 +210,7 @@ const unaryTestsRoot = seq(unaryTests, EOF);
 const parameters = lazy(() => formalParameters);
 // more formally nameRefOtherToken should be ~(LPAREN|RPAREN|LBRACK|RBRACK|LBRACE|RBRACE|LT|GT|EQUAL|BANG|COMMA)
 // but this will do for now
-const nameRefOtherToken = IDENTIFIER;
+const nameRefOtherToken = IDENTIFIER; //matchPattern("^[^=><!*.\\[\\]{}()\S]+")
 const nameRef = alt(
   nameRefOtherToken,
   apply(
@@ -292,84 +292,70 @@ const literal = alt(
   })
 );
 
-const iterationNameDefinitionToken = alt(
-  IDENTIFIER,
-  // additionalNameSymbol,
-  IntegerLiteral,
-  FloatingPointLiteral,
-  reusableKeywords,
-  IN,
-  lazy(() => iterationNameDefinitionToken)
-);
-// iterationNameDefinitionTokens parser
-const iterationNameDefinitionTokens = alt(
-  IDENTIFIER,
-  apply(seq(IDENTIFIER, iterationNameDefinitionToken), (tokens: any) => {
-    return {
-      type: "IterationNameDefinitionTokens",
-      tokens,
-      ctx: { text: tokens.join("") },
-    };
-  })
-);
+// const iterationNameDefinitionToken = alt(
+//   IDENTIFIER,
+//   // additionalNameSymbol,
+//   IntegerLiteral,
+//   FloatingPointLiteral,
+//   reusableKeywords,
+//   IN,
+//   lazy(() => iterationNameDefinitionToken)
+// );
+// // iterationNameDefinitionTokens parser
+// const iterationNameDefinitionTokens = alt(
+//   IDENTIFIER,
+//   apply(seq(IDENTIFIER, iterationNameDefinitionToken), (tokens: any) => {
+//     return {
+//       type: "IterationNameDefinitionTokens",
+//       tokens,
+//       ctx: { text: tokens.join("") },
+//     };
+//   })
+// );
 
-// iterationNameDefinition parser
-const iterationNameDefinition = apply(iterationNameDefinitionTokens, (tokens: any) => {
-  // scope.defineVariable("lll", tokens);
-  return tokens;
-});
-const iterationContext = alt(
-  // Enhanced for loop variant (requires feature flag)
+// // iterationNameDefinition parser
+// const iterationNameDefinition = apply(iterationNameDefinitionTokens, (tokens: any) => {
+//   // scope.defineVariable("lll", tokens);
+//   return tokens;
+// });
+const iterationContext =
   apply(
     seq(
-      lazy(() => iterationNameDefinition),
-      IN,
-      lazy(() => expression),
-      ELLIPSIS,
-      lazy(() => expression)
-    ),
-    ([_, name, _in, start, _dots, end]: any) => ({
-      type: "EnhancedIteration",
-      name,
-      start,
-      end,
-    })
-  ),
-  // Standard iteration variant
-  apply(
-    seq(
-      lazy(() => iterationNameDefinition),
+      apply(IDENTIFIER, (token: string) => {
+        return {
+          type: "IterationNameDefinitionToken",
+          token,
+        };
+      }), //iterationNameDefinition,
       IN,
       lazy(() => expression)
     ),
-    ([name, _in, expr]: any) => ({
-      type: "StandardIteration",
-      name,
-      expression: expr,
-    })
+    ([name, _in, expr]: any) => {
+      return { type: "StandardIteration", name, expression: expr };
+    }
+  );
+
+const iterationContexts = alt(
+  iterationContext,
+  apply(
+    seq(
+      COMMA,
+      lazy(() => iterationContexts)
+    ),
+    ([_comma, ctx]: any) => {
+      return ctx;
+    }
   )
-);
-const iterationContexts = apply(
-  seq(
-    iterationContext,
-    apply(
-      optional(
-        apply(seq(COMMA, iterationContext), ([_, ctx]: any) => ctx) // Extract just the context
-      ),
-      (results: any) => results.flat()
-    ) // Flatten nested arrays
-  ),
-  ([first, rest]: any) => [first, ...rest]
 );
 const forExpression = apply(
   seq(
     // Push scope at the start of the `for` expression
-    apply(FOR, () => {
+    apply(FOR, (x: any) => {
       // helper.pushScope();
-      // return null;
+      return FOR;
     }),
-    iterationContexts, // Parse iteration contexts
-    RETURN, // Parse the `return` keyword
+    iterationContext,//iterationContexts,
+    RETURN,
     apply(
       lazy(() => expression),
       (expr: any) => {
@@ -443,25 +429,30 @@ const quantifiedExpression = alt(
     })
   )
 );
-const expressionList = apply(
-  alt(
+const expressionList = alt(
+  seq(
     lazy(() => expression),
+    lazy(() => expressionList)
+  ),
+  apply(
     seq(
       COMMA,
-      lazy(() => expressionList)
-    )
-  ),
-  (elements: any) => elements
+      lazy(() => expression)
+    ),
+    ([_comma, exp]: any) => {
+      return exp;
+    }
+  )
 );
+
 const list = alt(
   apply(seq(LBRACK, RBRACK), () => ({
     type: "EmptyList",
     elements: [],
   })),
-  apply(seq(LBRACK, expressionList, RBRACK), ([_lbrack, elements, _rbrack]: any) => ({
-    type: "List",
-    elements,
-  }))
+  apply(seq(LBRACK, expressionList, RBRACK), (params: any) => {
+    return { type: "List", elements: params.slice(1, -1) };
+  })
 );
 const primary = alt(
   // Case 1: literal
@@ -847,11 +838,36 @@ const expression = apply(textualExpression, (expr: any) => {
     };
 });
 
-const exprParser = parse(expression);
-const result = exprParser(`orders[status = "pending"].items[quantity > 10]`);
+const exprParser = parse(forExpression);
+const result = exprParser(`for x in [1,2,3] return x * 2`);
 // orders[status = "pending"].items[quantity > 10]
 console.log(JSON.stringify(result));
 
+// #primaryForExpression
+// for x in [1,2,3] return x * 2
+
+// #primaryQuantifiedExpression
+// some x in [1,2,3] satisfies x > 2
+
+// #primaryIfExpression
+// if x > 5 then "high" else "low"
+
+// #primaryInterval
+// [1..10)
+
+// #primaryList
+// [1, 2, 3]
+
+// #primaryContext
+// { x: 5, y: 10 }
+
+// #primaryParens
+// (2 + 3 * 4)
+
+// -{ x: 5 }.x  // Signed context access: #signedUnaryExpressionMinus → #primaryContext
+// +[1,2,3][1] // Signed list access: #signedUnaryExpressionPlus → #primaryList
+// not(true)() // Function invocation on negation: #fnInvocation → #primaryUnaryTest
+
 // const exprParser = parse(IntegerLiteral)
-// const result = exprParser("te 10");
+// const result = exprParser(",");
 // console.log(JSON.stringify(result));

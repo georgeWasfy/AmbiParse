@@ -318,22 +318,21 @@ const literal = alt(
 //   // scope.defineVariable("lll", tokens);
 //   return tokens;
 // });
-const iterationContext =
-  apply(
-    seq(
-      apply(IDENTIFIER, (token: string) => {
-        return {
-          type: "IterationNameDefinitionToken",
-          token,
-        };
-      }), //iterationNameDefinition,
-      IN,
-      lazy(() => expression)
-    ),
-    ([name, _in, expr]: any) => {
-      return { type: "StandardIteration", name, expression: expr };
-    }
-  );
+const iterationContext = apply(
+  seq(
+    apply(IDENTIFIER, (token: string) => {
+      return {
+        type: "IterationNameDefinitionToken",
+        token,
+      };
+    }), //iterationNameDefinition,
+    IN,
+    lazy(() => expression)
+  ),
+  ([name, _in, expr]: any) => {
+    return { type: "StandardIteration", name, expression: expr };
+  }
+);
 
 const iterationContexts = alt(
   iterationContext,
@@ -354,7 +353,7 @@ const forExpression = apply(
       // helper.pushScope();
       return FOR;
     }),
-    iterationContext,//iterationContexts,
+    iterationContext, //iterationContexts,
     RETURN,
     apply(
       lazy(() => expression),
@@ -381,9 +380,9 @@ const quantifiedExpression = alt(
   apply(
     seq(
       SOME,
-      apply(iterationContexts, () => {
+      apply(iterationContext, (ctx: any) => { //iterationContext
         // helper.pushScope();
-        return null;
+        return ctx;
       }),
       SATISFIES,
       apply(
@@ -397,8 +396,9 @@ const quantifiedExpression = alt(
         }
       )
     ),
-    ([_some, _ctx, _sat, expr]: any) => ({
+    ([_some, ctx, _sat, expr]: any) => ({
       type: "QuantifiedExpressionSome",
+      ctx,
       expression: expr,
     })
   ),
@@ -505,7 +505,7 @@ const primary = alt(
     ),
     (expr: any) => ({
       type: "PrimaryParens",
-      expression: expr,
+      expression: expr.slice(1, -1),
     })
   ),
 
@@ -722,6 +722,7 @@ const relationalExpression = alt(
   additiveExpression
 );
 const comparisonExpression = alt(
+  relationalExpression,
   apply(
     seq(
       lazy(() => comparisonExpression),
@@ -743,8 +744,7 @@ const comparisonExpression = alt(
         right,
       };
     }
-  ),
-  relationalExpression
+  )
 );
 const conditionalAndExpression = alt(
   apply(
@@ -838,10 +838,10 @@ const expression = apply(textualExpression, (expr: any) => {
     };
 });
 
-const exprParser = parse(forExpression);
-const result = exprParser(`for x in [1,2,3] return x * 2`);
+const exprParser = parse(expression);
+const result = exprParser(`some x in [1,2,3] satisfies x > 2`);
 // orders[status = "pending"].items[quantity > 10]
-console.log(JSON.stringify(result));
+console.log(JSON.stringify(result[0]));
 
 // #primaryForExpression
 // for x in [1,2,3] return x * 2

@@ -1,5 +1,5 @@
 import { alt, apply, lazy, seq } from "../../src/parser";
-import { expression } from "./Expression";
+import { additiveExpression, expression } from "./Expression";
 import {
   IDENTIFIER,
   IN,
@@ -14,7 +14,6 @@ import {
   ELLIPSIS,
   LPAREN,
   RPAREN,
-  IntegerLiteral,
 } from "./Lexer";
 
 // const iterationNameDefinitionToken = alt(
@@ -42,7 +41,7 @@ import {
 //   // scope.defineVariable("lll", tokens);
 //   return tokens;
 // });
-export const endpoint = IntegerLiteral//additiveExpression;
+export const endpoint = lazy(()=>additiveExpression);
 
 export const interval = alt(
   // Case 1: (start..end)
@@ -231,6 +230,7 @@ export const quantifiedExpression = alt(
   )
 );
 const expressionList = alt(
+  lazy(() => expression),
   seq(
     lazy(() => expression),
     lazy(() => expressionList)

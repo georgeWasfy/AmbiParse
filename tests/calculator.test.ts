@@ -157,3 +157,25 @@ test(`Parser: calculator`, () => {
   assert.strictEqual(calcParser("1 + 2 * 3 + 4")[0].value, 11);
   assert.strictEqual(calcParser("(1 + 2) * (3 + 4)")[0].value, 21);
 });
+
+
+/*
+TERM
+  = NUMBER
+  = ('+' | '-') TERM
+  = '(' EXP ')'
+*/
+
+
+/*
+FACTOR
+  = TERM
+  = FACTOR ('*' | '/') TERM
+*/
+
+
+// EXP
+//   = FACTOR
+//   = EXP ('+' | '-') FACTOR
+// */
+

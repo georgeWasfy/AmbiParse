@@ -63,13 +63,21 @@ export const F = match("f");
 export const D = match("d");
 export const L = match("l");
 
-export const IntegerLiteral = matchPattern(
-  "(?:" +
-    "0[xX][0-9A-Fa-f_]+" + // HexIntegerLiteral
-    "|" +
-    "[0-9][0-9_]*" + // DecimalIntegerLiteral
-    ")[lL]?" // Optional suffix
-);
+// export const IntegerLiteral = apply(matchPattern(
+//   "^" +
+//     "0[xX](?!.*,)[0-9A-Fa-f_]+" + // HexIntegerLiteral excluding commas and square brackets
+//     "|" +
+//     "[0-9](?!.*,)[0-9_]*" + // DecimalIntegerLiteral excluding commas and square brackets
+//     "[lL]?" // Optional suffix
+// ),(x: any)=>{
+//   console.log("🚀 ~ x:", x)
+//   return x
+// })
+
+// TODO: handle all possible integer values
+// this will do for now as the above regex matched [ and ,
+// which resulted in expressions parsed incorrectly
+export const IntegerLiteral = matchPattern("^[0-9]+");
 
 export const FloatingPointLiteral = matchPattern(
   "^(?:" +
@@ -165,28 +173,39 @@ export const AT = match("@");
  *      IDENTIFIER
  ********************************/
 
+// alt(
+//   matchPattern("/?/"),
+//   matchPattern("[A-Z]"),
+//   matchPattern("[a-z]"),
+//   matchPattern("_"),
+//   matchPattern("[\u00C0-\u00D6]"),
+//   matchPattern("[\u00D8-\u00F6]"),
+//   matchPattern("[\u00F8-\u02FF]"),
+//   matchPattern("[\u0370-\u037D\u037F-\u1FFF]"),
+//   matchPattern("[\u200C-\u200D]"),
+//   matchPattern("[\u2070-\u218F]"),
+//   matchPattern("[\u2C00-\u2FEF]"),
+//   matchPattern("[\u3001-\uD7FF]"),
+//   matchPattern("[\uF900-\uFDCF]"),
+//   matchPattern("[\uFDF0-\uFFFD]"),
+//   matchPattern("[\u{10000}-\u{EFFFF}]")
+// );
 // Helper component parsers (if needed for composition)
-export const NameStartChar = alt(
-  matchPattern("/?/"),
-  matchPattern("[A-Z]"),
-  matchPattern("[a-z]"),
-  matchPattern("_"),
-  matchPattern("[\u00C0-\u00D6]"),
-  matchPattern("[\u00D8-\u00F6]"),
-  matchPattern("[\u00F8-\u02FF]"),
-  matchPattern("[\u0370-\u037D\u037F-\u1FFF]"),
-  matchPattern("[\u200C-\u200D]"),
-  matchPattern("[\u2070-\u218F]"),
-  matchPattern("[\u2C00-\u2FEF]"),
-  matchPattern("[\u3001-\uD7FF]"),
-  matchPattern("[\uF900-\uFDCF]"),
-  matchPattern("[\uFDF0-\uFFFD]"),
-  matchPattern("[\u{10000}-\u{EFFFF}]")
+export const NameStartChar = matchPattern(
+  `^[${[
+    "\\?A-Z_a-z",
+    "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF",
+    "\\u0370-\\u037D\\u037F-\\u1FFF",
+    "\\u200C-\\u200D\\u2070-\\u218F",
+    "\\u2C00-\\u2FEF\\u3001-\\uD7FF",
+    "\\uF900-\\uFDCF\\uFDF0-\\uFFFD",
+    "\\u{10000}-\\u{EFFFF}",
+  ].join("")}]`
 );
 
 export const NameStartCharOrPart = matchPattern(
   `[${[
-    "?A-Z_a-z0-9",
+    "\\?A-Z_a-z0-9",
     "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF",
     "\\u0370-\\u037D\\u037F-\\u1FFF",
     "\\u200C-\\u200D\\u2070-\\u218F",

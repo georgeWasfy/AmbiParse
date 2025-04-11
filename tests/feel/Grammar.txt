@@ -37,7 +37,7 @@ expressions.
 8. interval = ( open interval start | closed interval start ) , endpoint , ".." , endpoint , ( open interval end | closed
 interval end ) ;
 
-9. open interval start = "(" | "]" ;102 Decision Model and Notation, v1.3
+9. open interval start = "(" | "]" ;
 10. closed interval start = "[" ;
 11. open interval end = ")" | "[" ;
 12. closed interval end = "]" ;
@@ -56,21 +56,21 @@ interval end ) ;
 22. division = expression , "/" , expression ;
 23. exponentiation = expression, "**", expression ;
 24. arithmetic negation = "-" , expression ;
-25. name = name start , { name part | additional name symbols } ;
-26. name start = name start char, { name part char } ;
-27. name part = name part char , { name part char } ;
-28. name start char = "?" | [A-Z] | "_" | [a-z] | [\uC0-\uD6] | [\uD8-\uF6] | [\uF8-\u2FF] | [\u370-\u37D] | [\u37F-\u1FFF] |
-[\u200C-\u200D] | [\u2070-\u21 8F] | [\u2C00-\u2FEF] | [\u3001 -\uD7FF] | [\uF900-\uFDCF] | [\uFDF0-\uFFFD] |
-[\u10000-\uEFFFF] ;
-29. name part char = name start char | digit | \uB7 | [\u0300-\u036F] | [\u203F-\u2040] ;
-30. additional name symbols = "." | "/" | "-" | "’" | "+" | "*" ;
+[☑] 25. name = name start , { name part | additional name symbols } ;
+[☑] 26. name start = name start char, { name part char } ;
+[☑] 27. name part = name part char , { name part char } ;
+[☑] 28. name start char = "?" | [A-Z] | "_" | [a-z] | [\uC0-\uD6] | [\uD8-\uF6] | [\uF8-\u2FF] | [\u370-\u37D] | [\u37F-\u1FFF] |
+        [\u200C-\u200D] | [\u2070-\u21 8F] | [\u2C00-\u2FEF] | [\u3001 -\uD7FF] | [\uF900-\uFDCF] | [\uFDF0-\uFFFD] |
+        [\u10000-\uEFFFF] ;
+[☑] 29. name part char = name start char | digit | \uB7 | [\u0300-\u036F] | [\u203F-\u2040] ;
+[☑] 30. additional name symbols = "." | "/" | "-" | "’" | "+" | "*" ;
 31. literal = simple literal | "null" ;
 32. simple literal = numeric literal | string literal | boolean literal | date time literal ;
-33. string literal = """, { character – (""" | vertical space) | string escape sequence}, """ ;
-34. boolean literal = "true" |Decision Model and Notation, v1.3 103
-35. numeric literal = [ "-" ] , ( digits , [ ".", digits ] | "." , digits ) ;
-36. digit = [0-9] ;
-37. digits = digit , {digit} ;
+[☑] 33. string literal = """, { character – (""" | vertical space) | string escape sequence}, """ ;
+[☑] 34. boolean literal = "true" | "false"
+[☑] 35. numeric literal = [ "-" ] , ( digits , [ ".", digits ] | "." , digits ) ;
+[☑] 36. digit = [0-9] ;
+[☑] 37. digits = digit , {digit} ; 
 38. function invocation = expression , parameters ;
 39. parameters = "(" , ( named parameters | positional parameters ) , ")" ;
 40. named parameters = parameter name , ":" ,
@@ -79,8 +79,7 @@ expression } ;
 41. parameter name = name ;
 42. positional parameters = [ expression , { "," , expression } ] ;
 43. path expression = expression , "." , name ;
-44. for expression = "for" , name , "in" , iteration context { "," , name , "in" , iteration context } , "return" , expression
-;
+44. for expression = "for" , name , "in" , iteration context { "," , name , "in" , iteration context } , "return" , expression ;
 45. if expression = "if" , expression , "then" , expression , "else" expression ;
 46. quantified expression = ("some" | "every") , name , "in" , expression , { "," , name , "in" , expression } , "satisfies" , expression ;
 47. disjunction = expression , "or" , expression ;
@@ -97,13 +96,11 @@ expression } ;
                 qualified name |
                 "range" "<" type ">" |
                 "list" "<" type ">" |
-                "context" "<" name ":" type { "," name ":" type } ">" | "function" "<" [ type { ", " type } ] ">" "->" type
-                ;104 Decision Model and Notation, v1.3
+                "context" "<" name ":" type { "," name ":" type } ">" | "function" "<" [ type { ", " type } ] ">" "->" type;
 
 53. boxed expression = list | function definition | context ;
 54. list = "[" , [ expression , { "," , expression } ] , "]" ;
-55. function definition = "function" , "(" , [ formal parameter { "," , formal parameter } ] ,
-")" , [ "external" ] , expression ;
+55. function definition = "function" , "(" , [ formal parameter { "," , formal parameter } ] , ")" , [ "external" ] , expression ;
 56. formal parameter = parameter name [":" type ] ;
 57. context = "{" , [context entry , { "," , context entry } ] , "}" ;
 58. context entry = key , ":" , expression ;

@@ -1,4 +1,5 @@
 import { alt, apply, lazy, match, matchPattern, seq } from "../../../src/parser";
+import { functionInvocation } from "./FunctionDefinition";
 
 /********************************
  *      KEYWORDS
@@ -97,9 +98,12 @@ const digits = alt(
   )
 );
 
-export const numericLiteral = alt(
-  seq(SUB, alt(alt(digits, seq(digits, DOT, digits)), seq(DOT, digits))),
-  alt(alt(digits, seq(digits, DOT, digits)), seq(DOT, digits))
+export const NumericLiteral = apply(
+  alt(
+    seq(SUB, alt(alt(digits, seq(digits, DOT, digits)), seq(DOT, digits))),
+    alt(alt(digits, seq(digits, DOT, digits)), seq(DOT, digits))
+  ),
+  (tokens: string[]) => tokens.join("")
 );
 
 /********************************
@@ -126,7 +130,6 @@ export const BooleanLiteral = alt(match("true"), match("false"));
 /********************************
  *      IDENTIFIER
  ********************************/
-
 const NameStartChar = matchPattern(
   `^[${[
     "\\?A-Z_a-z",
@@ -154,9 +157,25 @@ const NamePart = alt(
 );
 //Ignore Additional Name Symbols for now
 const AdditionalNameSymbols = alt(DOT, BACKSLASH, SUB, ADD, MUL);
-const NameStart = alt(NameStartChar, seq(NameStartChar, NamePart));
+const NameStart = alt(
+  NameStartChar,
+  apply(seq(NameStartChar, NamePart), (tokens: string[]) => {
+    return tokens.join("");
+  })
+);
 export const Name = NameStart;
 
 /********************************
  *      WHITESPACE && COMMENTS
  ********************************/
+
+/********************************
+ *       AT LITERAL
+ ********************************/
+const AtLiteral = seq(AT, StringLiteral);
+const dateTimeLiteral = alt(
+  AtLiteral,
+  lazy(() => functionInvocation)
+);
+const simpleLiteral = alt(NumericLiteral, StringLiteral, BooleanLiteral, dateTimeLiteral);
+export const literal = alt(simpleLiteral, NULL);

@@ -64,20 +64,18 @@ interval end ) ;
         [\u10000-\uEFFFF] ;
 [☑] 29. name part char = name start char | digit | \uB7 | [\u0300-\u036F] | [\u203F-\u2040] ;
 [☑] 30. additional name symbols = "." | "/" | "-" | "’" | "+" | "*" ;
-31. literal = simple literal | "null" ;
-32. simple literal = numeric literal | string literal | boolean literal | date time literal ;
+[☑] 31. literal = simple literal | "null" ;
+[☑] 32. simple literal = numeric literal | string literal | boolean literal | date time literal ;
 [☑] 33. string literal = """, { character – (""" | vertical space) | string escape sequence}, """ ;
 [☑] 34. boolean literal = "true" | "false"
 [☑] 35. numeric literal = [ "-" ] , ( digits , [ ".", digits ] | "." , digits ) ;
 [☑] 36. digit = [0-9] ;
 [☑] 37. digits = digit , {digit} ; 
-38. function invocation = expression , parameters ;
-39. parameters = "(" , ( named parameters | positional parameters ) , ")" ;
-40. named parameters = parameter name , ":" ,
-expression , { "," , parameter name , ":" ,
-expression } ;
-41. parameter name = name ;
-42. positional parameters = [ expression , { "," , expression } ] ;
+[☑] 38. function invocation = expression , parameters ;
+[☑] 39. parameters = "(" , ( named parameters | positional parameters ) , ")" ;
+[☑] 40. named parameters = parameter name , ":" , expression , { "," , parameter name , ":" , expression } ;
+[☑] 41. parameter name = name ;
+[☑] 42. positional parameters = [ expression , { "," , expression } ] ;
 43. path expression = expression , "." , name ;
 44. for expression = "for" , name , "in" , iteration context { "," , name , "in" , iteration context } , "return" , expression ;
 45. if expression = "if" , expression , "then" , expression , "else" expression ;
@@ -105,13 +103,13 @@ expression } ;
 57. context = "{" , [context entry , { "," , context entry } ] , "}" ;
 58. context entry = key , ":" , expression ;
 59. key = name | string literal ;
-60. date time literal = at literal | function invocation;
+[☑] 60. date time literal = at literal | function invocation;
 61. white space = vertical space | \u0009 | \u0020 | \u0085 | \u00A0 | \u1 680 | \u1 80E | [\u2000-\u200B] | \u2028 |
 \u2029 | \u202F | \u205F | \u3000 | \uFEFF ;
 62. vertical space = [\u000A-\u000D]
 63. iteration context = expression, [ “..”, expression ];
 64. string escape sequence = "\'" | "\"" | "\\" | "\n" | "\r" | "\t" | code point;
-65. at literal = “@”, string literal
+[☑] 65. at literal = “@”, string literal
 
 
 Additional syntax rules:

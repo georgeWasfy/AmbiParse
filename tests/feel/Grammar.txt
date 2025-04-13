@@ -100,9 +100,9 @@ interval end ) ;
 54. list = "[" , [ expression , { "," , expression } ] , "]" ;
 [☑] 55. function definition = "function" , "(" , [ formal parameter { "," , formal parameter } ] , ")" , [ "external" ] , expression ;
 [☑] 56. formal parameter = parameter name [":" type ] ;
-57. context = "{" , [context entry , { "," , context entry } ] , "}" ;
-58. context entry = key , ":" , expression ;
-59. key = name | string literal ;
+[☑] 57. context = "{" , [context entry , { "," , context entry } ] , "}" ;
+[☑] 58. context entry = key , ":" , expression ;
+[☑] 59. key = name | string literal ;
 [☑] 60. date time literal = at literal | function invocation;
 61. white space = vertical space | \u0009 | \u0020 | \u0085 | \u00A0 | \u1 680 | \u1 80E | [\u2000-\u200B] | \u2028 |
 \u2029 | \u202F | \u205F | \u3000 | \uFEFF ;

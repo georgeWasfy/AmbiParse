@@ -1,6 +1,5 @@
 import { alt, apply, lazy, match, seq } from "../../../src/parser";
-import { list } from "./BranchesAndIterations";
-import { context } from "./Context";
+import { Expression, expression } from "./Expression";
 import {
   COLON,
   COMMA,
@@ -13,14 +12,10 @@ import {
   LPAREN,
   LT,
   Name,
-  NumericLiteral,
   RANGE,
   RPAREN,
-  StringLiteral,
 } from "./Lexer";
-export const expression = alt(Name, NumericLiteral, StringLiteral);
-export type Expression = any;
-export const boxedExpression = alt(context, list, lazy(()=>functionDefinition));
+
 
 type Type = {
   kind: "qualified" | "range" | "list" | "context" | "function";

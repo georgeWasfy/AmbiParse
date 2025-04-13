@@ -1,7 +1,9 @@
-import { parse } from "../../../src/parser";
-import {boxedExpression } from "./FunctionDefinition";
+import { alt, parse } from "../../../src/parser";
+import { functionDefinition } from "./FunctionDefinition";
+import { context } from "./Context";
+import { list } from "./BranchesAndIterations";
 
-
+export const boxedExpression = alt(functionDefinition, context, list);
 const exprParser = parse(boxedExpression);
-const result = exprParser(`[1,2,3]`);
+const result = exprParser(`{}`);
 console.log(JSON.stringify(result));

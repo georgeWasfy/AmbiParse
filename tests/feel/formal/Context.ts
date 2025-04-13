@@ -1,5 +1,5 @@
 import { alt, apply, lazy, seq } from "../../../src/parser";
-import { expression, Expression } from "./FunctionDefinition";
+import { expression, Expression } from "./Expression";
 import { COLON, COMMA, Name, StringLiteral, LBRACE, RBRACE } from "./Lexer";
 type Key = string;
 

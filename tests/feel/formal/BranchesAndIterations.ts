@@ -1,5 +1,5 @@
 import { alt, apply, lazy, seq } from "../../../src/parser";
-import { Expression, expression } from "./FunctionDefinition";
+import { Expression, expression } from "./Expression";
 import { COMMA, LBRACK, RBRACK } from "./Lexer";
 export const listExpressions = alt(
   lazy(() => expression),

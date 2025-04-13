@@ -49,7 +49,7 @@ interval end ) ;
                 c. "-"
 16. endpoint = expression ;
 17. simple value = qualified name | simple literal ;
-18. qualified name = name , { "." , name } ;
+[☑] 18. qualified name = name , { "." , name } ;
 19. addition = expression , "+" , expression ;
 20. subtraction = expression , "-" , expression ;
 21. multiplication = expression , "*" , expression ;
@@ -90,7 +90,7 @@ interval end ) ;
 
 50. filter expression = expression , "[" , expression , "]" ;
 51. instance of = expression , "instance" , "of" , type ;
-52. type =
+[☑] 52. type =
                 qualified name |
                 "range" "<" type ">" |
                 "list" "<" type ">" |
@@ -98,8 +98,8 @@ interval end ) ;
 
 53. boxed expression = list | function definition | context ;
 54. list = "[" , [ expression , { "," , expression } ] , "]" ;
-55. function definition = "function" , "(" , [ formal parameter { "," , formal parameter } ] , ")" , [ "external" ] , expression ;
-56. formal parameter = parameter name [":" type ] ;
+[☑] 55. function definition = "function" , "(" , [ formal parameter { "," , formal parameter } ] , ")" , [ "external" ] , expression ;
+[☑] 56. formal parameter = parameter name [":" type ] ;
 57. context = "{" , [context entry , { "," , context entry } ] , "}" ;
 58. context entry = key , ":" , expression ;
 59. key = name | string literal ;

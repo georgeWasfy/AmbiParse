@@ -25,6 +25,9 @@ export const TRUE = match("true");
 export const FALSE = match("false");
 export const IN = match("in");
 export const EOF = matchPattern("/^$/");
+export const RANGE = match("range");
+export const LIST = match("list");
+export const CONTEXT = match("context");
 
 export const ReusableKeywords = alt(
   FOR,
@@ -98,12 +101,9 @@ const digits = alt(
   )
 );
 
-export const NumericLiteral = apply(
-  alt(
-    seq(SUB, alt(alt(digits, seq(digits, DOT, digits)), seq(DOT, digits))),
-    alt(alt(digits, seq(digits, DOT, digits)), seq(DOT, digits))
-  ),
-  (tokens: string[]) => tokens.join("")
+export const NumericLiteral = alt(
+  seq(SUB, alt(alt(digits, seq(digits, DOT, digits)), seq(DOT, digits))),
+  alt(alt(digits, seq(digits, DOT, digits)), seq(DOT, digits))
 );
 
 /********************************

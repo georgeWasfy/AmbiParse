@@ -96,8 +96,8 @@ interval end ) ;
                 "list" "<" type ">" |
                 "context" "<" name ":" type { "," name ":" type } ">" | "function" "<" [ type { ", " type } ] ">" "->" type;
 
-53. boxed expression = list | function definition | context ;
-54. list = "[" , [ expression , { "," , expression } ] , "]" ;
+[☑] 53. boxed expression = list | function definition | context ;
+[☑] 54. list = "[" , [ expression , { "," , expression } ] , "]" ;
 [☑] 55. function definition = "function" , "(" , [ formal parameter { "," , formal parameter } ] , ")" , [ "external" ] , expression ;
 [☑] 56. formal parameter = parameter name [":" type ] ;
 [☑] 57. context = "{" , [context entry , { "," , context entry } ] , "}" ;

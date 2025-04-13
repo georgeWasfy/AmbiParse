@@ -1,5 +1,6 @@
 import { alt, apply, lazy, match, seq } from "../../../src/parser";
-import { expression } from "./Expression";
+import { list } from "./BranchesAndIterations";
+import { context } from "./Context";
 import {
   COLON,
   COMMA,
@@ -12,10 +13,14 @@ import {
   LPAREN,
   LT,
   Name,
+  NumericLiteral,
   RANGE,
   RPAREN,
+  StringLiteral,
 } from "./Lexer";
-import { Expression } from "./main";
+export const expression = alt(Name, NumericLiteral, StringLiteral);
+export type Expression = any;
+export const boxedExpression = alt(context, list, lazy(()=>functionDefinition));
 
 type Type = {
   kind: "qualified" | "range" | "list" | "context" | "function";
@@ -26,12 +31,12 @@ type ContextEntryType = {
   name: string;
   type: Type;
 };
-export type FunctionDefinition =  {
+export type FunctionDefinition = {
   type: "FunctionDefinition";
   parameters: Array<{ name: string; type: Type | null }>;
   body: Expression;
   external: boolean;
-}
+};
 
 type ParameterName = { type: "ParameterName"; name: string };
 type NamedParameter = { type: "NamedParameter"; name: ParameterName; value: Expression };

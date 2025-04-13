@@ -5,26 +5,26 @@ The complete FEEL grammar is specified below. Grammar rules are numbered, and in
 lettered, for later reference. Boxed expression syntax (rule 53) is used to give execution semantics to boxed
 expressions.
 1. expression =
-                a. boxed expression |
-                b. textual expression ;
+                lowest a. boxed expression |
+                highest b. textual expression ;
 
 2. textual expression =
-                a. for expression | if expression | quantified expression |
+                lowest a. for expression | if expression | quantified expression |
                 b. disjunction |
                 c. conjunction |
                 d. comparison |
                 e. arithmetic expression |
                 f. instance of |
                 g. path expression | filter expression | function invocation |
-                h. literal | simple positive unary test | name | "(" , expression , ")" ;
+                highest h. literal | simple positive unary test | name | "(" , expression , ")" ;
 
 3. textual expressions = textual expression , { "," , textual expression } ;
 
 4. arithmetic expression =
-                a. addition | subtraction |
+                lowest a. addition | subtraction |
                 b. multiplication | division |
                 c. exponentiation |
-                d. arithmetic negation ;
+                highest d. arithmetic negation ;
 
 5. simple expression = arithmetic expression | simple value ;
 
@@ -77,8 +77,8 @@ interval end ) ;
 [☑] 41. parameter name = name ;
 [☑] 42. positional parameters = [ expression , { "," , expression } ] ;
 43. path expression = expression , "." , name ;
-44. for expression = "for" , name , "in" , iteration context { "," , name , "in" , iteration context } , "return" , expression ;
-45. if expression = "if" , expression , "then" , expression , "else" expression ;
+[☑] 44. for expression = "for" , name , "in" , iteration context { "," , name , "in" , iteration context } , "return" , expression ;
+[☑] 45. if expression = "if" , expression , "then" , expression , "else" expression ;
 46. quantified expression = ("some" | "every") , name , "in" , expression , { "," , name , "in" , expression } , "satisfies" , expression ;
 47. disjunction = expression , "or" , expression ;
 48. conjunction = expression , "and" , expression ;
@@ -107,7 +107,7 @@ interval end ) ;
 61. white space = vertical space | \u0009 | \u0020 | \u0085 | \u00A0 | \u1 680 | \u1 80E | [\u2000-\u200B] | \u2028 |
 \u2029 | \u202F | \u205F | \u3000 | \uFEFF ;
 62. vertical space = [\u000A-\u000D]
-63. iteration context = expression, [ “..”, expression ];
+[☑] 63. iteration context = expression, [ “..”, expression ];
 64. string escape sequence = "\'" | "\"" | "\\" | "\n" | "\r" | "\t" | code point;
 [☑] 65. at literal = “@”, string literal
 

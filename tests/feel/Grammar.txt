@@ -30,24 +30,24 @@ expressions.
 
 6. simple expressions = simple expression , { "," , simple expression } ;
 
-7. simple positive unary test =
+[☑] 7. simple positive unary test =
                 a. ( "<" | "<=" | ">" | ">=" ) , endpoint |
                 b. interval ;
 
-8. interval = ( open interval start | closed interval start ) , endpoint , ".." , endpoint , ( open interval end | closed
+[☑] 8. interval = ( open interval start | closed interval start ) , endpoint , ".." , endpoint , ( open interval end | closed
 interval end ) ;
 
-9. open interval start = "(" | "]" ;
-10. closed interval start = "[" ;
-11. open interval end = ")" | "[" ;
-12. closed interval end = "]" ;
-13. positive unary test = expression ;
-14. positive unary tests = positive unary test , { "," , positive unary test } ;
-15. unary tests =
+[☑] 9. open interval start = "(" | "]" ;
+[☑] 10. closed interval start = "[" ;
+[☑] 11. open interval end = ")" | "[" ;
+[☑] 12. closed interval end = "]" ;
+[☑] 13. positive unary test = expression ;
+[☑] 14. positive unary tests = positive unary test , { "," , positive unary test } ;
+[☑] 15. unary tests =
                 a. positive unary tests |
                 b. "not", " (", positive unary tests, ")" |
                 c. "-"
-16. endpoint = expression ;
+[☑] 16. endpoint = expression ;
 17. simple value = qualified name | simple literal ;
 [☑] 18. qualified name = name , { "." , name } ;
 19. addition = expression , "+" , expression ;

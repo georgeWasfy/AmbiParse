@@ -1,6 +1,21 @@
 import { alt, apply, lazy, seq } from "../../../src/parser";
 import { Expression, expression } from "./Expression";
-import { COMMA, ELLIPSIS, ELSE, FOR, IF, IN, LBRACK, Name, RBRACK, RETURN, THEN } from "./Lexer";
+import {
+  COMMA,
+  ELLIPSIS,
+  ELSE,
+  EVERY,
+  FOR,
+  IF,
+  IN,
+  LBRACK,
+  Name,
+  RBRACK,
+  RETURN,
+  SATISFIES,
+  SOME,
+  THEN,
+} from "./Lexer";
 
 type ForExpression = {
   type: "ForExpression";
@@ -23,6 +38,18 @@ type IfExpression = {
   condition: Expression;
   thenBranch: Expression;
   elseBranch: Expression;
+};
+
+type QuantifiedVariable = {
+  type: "InExpression";
+  name: string;
+  value: Expression;
+};
+type QuantifiedExpression = {
+  type: "QuantifiedExpression";
+  quantifier: "some" | "every";
+  variables: QuantifiedVariable[];
+  body: Expression;
 };
 export const listExpressions = alt(
   lazy(() => expression),
@@ -146,3 +173,58 @@ export const ifExpression = apply(
  * For Expression EXAMPLES *
  ********************************/
 // 1. if 1 then 2 else 3
+
+const InExpression = apply(
+  seq(
+    Name,
+    IN,
+    lazy(() => expression)
+  ),
+  ([name, _in, exp]: [string, string, Expression]) => {
+    return {
+      type: "InExpression",
+      name,
+      value: exp,
+    };
+  }
+);
+const quantifiedExpressions = alt(
+  apply(InExpression,(exp: QuantifiedVariable)=>[[exp]]),
+  apply(
+    seq(
+      InExpression,
+      COMMA,
+      lazy(() => quantifiedExpressions)
+    ),
+    ([inExp1, _comma, inExp2]: [Expression, string, Expression]) => {
+      //TODO: fix in the parser combinator as it always flattens first array
+      return Array.isArray(inExp2) ? [[inExp1, ...inExp2]] : [[inExp1, inExp2]];
+    }
+  )
+);
+export const quantifiedExpression = apply(
+  seq(
+    alt(SOME, EVERY),
+    quantifiedExpressions,
+    SATISFIES,
+    lazy(() => expression)
+  ),
+  ([quantifier, variables, _satisfies, exp]: [
+    string,
+    QuantifiedVariable[],
+    string,
+    Expression
+  ]) => {
+    return {
+      type: "QuantifiedExpression",
+      quantifier,
+      variables,
+      body: exp,
+    };
+  }
+);
+
+/**********************************
+ * Quantified Expression EXAMPLES *
+ **********************************/
+// 1. some x in 1, y in 10 satisfies 2

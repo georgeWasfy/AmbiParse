@@ -79,7 +79,7 @@ interval end ) ;
 43. path expression = expression , "." , name ;
 [☑] 44. for expression = "for" , name , "in" , iteration context { "," , name , "in" , iteration context } , "return" , expression ;
 [☑] 45. if expression = "if" , expression , "then" , expression , "else" expression ;
-46. quantified expression = ("some" | "every") , name , "in" , expression , { "," , name , "in" , expression } , "satisfies" , expression ;
+[☑] 46. quantified expression = ("some" | "every") , name , "in" , expression , { "," , name , "in" , expression } , "satisfies" , expression ;
 47. disjunction = expression , "or" , expression ;
 48. conjunction = expression , "and" , expression ;
 49. comparison =

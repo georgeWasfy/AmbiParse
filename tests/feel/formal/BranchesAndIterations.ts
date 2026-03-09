@@ -1,5 +1,5 @@
 import { alt, apply, lazy, seq } from "../../../src/parser";
-import { Expression, expression } from "./Expression";
+import { Expression } from "./Expression";
 import {
   COMMA,
   ELLIPSIS,
@@ -16,6 +16,7 @@ import {
   SOME,
   THEN,
 } from "./Lexer";
+import { expression } from "./main";
 
 type ForExpression = {
   type: "ForExpression";

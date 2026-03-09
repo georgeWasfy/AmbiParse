@@ -4,11 +4,11 @@ Grammar rules:-
 The complete FEEL grammar is specified below. Grammar rules are numbered, and in some cases alternatives are
 lettered, for later reference. Boxed expression syntax (rule 53) is used to give execution semantics to boxed
 expressions.
-1. expression =
+[☑] 1. expression =
                 lowest a. boxed expression |
                 highest b. textual expression ;
 
-2. textual expression =
+[☑] 2. textual expression =
                 lowest a. for expression | if expression | quantified expression |
                 b. disjunction |
                 c. conjunction |
@@ -18,7 +18,7 @@ expressions.
                 g. path expression | filter expression | function invocation |
                 highest h. literal | simple positive unary test | name | "(" , expression , ")" ;
 
-3. textual expressions = textual expression , { "," , textual expression } ;
+[☑] 3. textual expressions = textual expression , { "," , textual expression } ;
 
 [☑] 4. arithmetic expression =
                 lowest a. addition | subtraction |
@@ -26,9 +26,9 @@ expressions.
                 c. exponentiation |
                 highest d. arithmetic negation ;
 
-5. simple expression = arithmetic expression | simple value ;
+[☑] 5. simple expression = arithmetic expression | simple value ;
 
-6. simple expressions = simple expression , { "," , simple expression } ;
+[☑] 6. simple expressions = simple expression , { "," , simple expression } ;
 
 [☑] 7. simple positive unary test =
                 a. ( "<" | "<=" | ">" | ">=" ) , endpoint |
@@ -48,7 +48,7 @@ interval end ) ;
                 b. "not", " (", positive unary tests, ")" |
                 c. "-"
 [☑] 16. endpoint = expression ;
-17. simple value = qualified name | simple literal ;
+[☑] 17. simple value = qualified name | simple literal ;
 [☑] 18. qualified name = name , { "." , name } ;
 [☑] 19. addition = expression , "+" , expression ;
 [☑] 20. subtraction = expression , "-" , expression ;
@@ -76,20 +76,20 @@ interval end ) ;
 [☑] 40. named parameters = parameter name , ":" , expression , { "," , parameter name , ":" , expression } ;
 [☑] 41. parameter name = name ;
 [☑] 42. positional parameters = [ expression , { "," , expression } ] ;
-43. path expression = expression , "." , name ;
+[☑] 43. path expression = expression , "." , name ;
 [☑] 44. for expression = "for" , name , "in" , iteration context { "," , name , "in" , iteration context } , "return" , expression ;
 [☑] 45. if expression = "if" , expression , "then" , expression , "else" expression ;
 [☑] 46. quantified expression = ("some" | "every") , name , "in" , expression , { "," , name , "in" , expression } , "satisfies" , expression ;
-47. disjunction = expression , "or" , expression ;
-48. conjunction = expression , "and" , expression ;
-49. comparison =
+[☑] 47. disjunction = expression , "or" , expression ;
+[☑] 48. conjunction = expression , "and" , expression ;
+[☑] 49. comparison =
                 a. expression , ( "=" | "!=" | "<" | "<=" | ">" | ">=" ) , expression |
                 b. expression , "between" , expression , "and" , expression |
                 c. expression , "in" , positive unary test |
                 d. expression , "in" , " (", positive unary tests, ")" ;
 
-50. filter expression = expression , "[" , expression , "]" ;
-51. instance of = expression , "instance" , "of" , type ;
+[☑] 50. filter expression = expression , "[" , expression , "]" ;
+[☑] 51. instance of = expression , "instance" , "of" , type ;
 [☑] 52. type =
                 qualified name |
                 "range" "<" type ">" |

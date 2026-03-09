@@ -1,6 +1,7 @@
 import { alt, apply, lazy, seq } from "../../../src/parser";
-import { expression, Expression } from "./Expression";
+import { Expression } from "./Expression";
 import { COLON, COMMA, Name, StringLiteral, LBRACE, RBRACE } from "./Lexer";
+import { expression } from "./main";
 type Key = string;
 
 type ContextEntry = {

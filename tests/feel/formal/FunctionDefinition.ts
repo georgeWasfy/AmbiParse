@@ -1,5 +1,5 @@
 import { alt, apply, lazy, match, seq } from "../../../src/parser";
-import { Expression, expression } from "./Expression";
+import { Expression } from "./Expression";
 import {
   COLON,
   COMMA,
@@ -15,6 +15,7 @@ import {
   RANGE,
   RPAREN,
 } from "./Lexer";
+import { expression } from "./main";
 
 
 type Type = {
@@ -98,7 +99,7 @@ export const functionInvocation = seq(
   parameters
 );
 //======================
-const qualifiedName = alt(
+const qualifiedName: any = alt(
   Name,
   seq(
     Name,
@@ -106,6 +107,7 @@ const qualifiedName = alt(
     lazy(() => qualifiedName)
   )
 );
+export { qualifiedName };
 const contextEntryTypes = alt(
   apply(
     seq(
@@ -141,7 +143,7 @@ const innerFunctionTypes = alt(
     lazy(() => innerFunctionTypes)
   )
 );
-const type = alt(
+export const type = alt(
   apply(qualifiedName, (name: string) => ({ kind: "qualified", value: name })),
   apply(
     seq(

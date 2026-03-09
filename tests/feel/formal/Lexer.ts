@@ -1,5 +1,5 @@
 import { alt, apply, lazy, match, matchPattern, seq } from "../../../src/parser";
-import { functionInvocation } from "./FunctionDefinition";
+import { functionInvocation, qualifiedName } from "./FunctionDefinition";
 
 /********************************
  *      KEYWORDS
@@ -179,3 +179,4 @@ const dateTimeLiteral = alt(
 );
 const simpleLiteral = alt(NumericLiteral, StringLiteral, BooleanLiteral, dateTimeLiteral);
 export const literal = alt(simpleLiteral, NULL);
+export const simpleValue = alt(qualifiedName,simpleLiteral)

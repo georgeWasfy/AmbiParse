@@ -1,6 +1,7 @@
 import { alt, apply, lazy, seq } from "../../../src/parser";
-import { Expression, expression } from "./Expression";
+import { Expression } from "./Expression";
 import { COMMA, ELLIPSIS, GE, GT, LBRACK, LE, LPAREN, LT, NOT, RBRACK, RPAREN, SUB } from "./Lexer";
+import { expression } from "./main";
 
 type Interval = {
   type: "Interval";
@@ -110,8 +111,8 @@ const interval = alt(
     })
   )
 );
-const positiveUnaryTest = lazy(() => expression);
-const positiveUnaryTests = alt(
+export const positiveUnaryTest = lazy(() => expression);
+export const positiveUnaryTests = alt(
   apply(positiveUnaryTest, (exp: Expression) => [[exp]]),
   apply(
     seq(

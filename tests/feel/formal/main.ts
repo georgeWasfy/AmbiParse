@@ -20,7 +20,7 @@ const tests = [
   "a[0]",
   "x instance of string",
   "1 between 2 and 3",
-  "1 in (< 5)", // this fails with []..
+  "1 in (< 5)",
   "for x in 1..5 return x",
   "if true then 1 else 2",
   "some x in 1 satisfies x > 0",

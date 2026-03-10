@@ -1,8 +1,8 @@
 import { alt, apply, lazy, seq } from "../../../src/parser";
 import { type } from "./FunctionDefinition";
 
-import { ADD, AND, BETWEEN as BETWEENkw, COMMA, DIV, DOT, EQUAL, GE, GT, IN, INSTANCE, LBRACK, LE, LPAREN, LT, MUL, Name, NOTEQUAL, NumericLiteral, OF, OR, POW, RBRACK, RPAREN, StringLiteral, SUB, TRUE, FALSE, NULL } from "./Lexer";
-import { positiveUnaryTest, positiveUnaryTests } from "./UnaryTest";
+import { ADD, AND, BETWEEN as BETWEENkw, DIV, DOT, EQUAL, GE, GT, IN, INSTANCE, LBRACK, LE, LPAREN, LT, MUL, Name, NOTEQUAL, NumericLiteral, OF, OR, POW, RBRACK, RPAREN, StringLiteral, SUB, TRUE, FALSE, NULL } from "./Lexer";
+import { simplePositiveUnaryTest, simplePositiveUnaryTests } from "./UnaryTest";
 
 export type Expression = any;
 
@@ -113,12 +113,12 @@ const comparisonExpression = alt(
     left: tokens[2],
     right: tokens[4],
   })),
-  apply(seq(instanceOfOrHigher, IN, positiveUnaryTest), (tokens: any) => ({
+  apply(seq(instanceOfOrHigher, IN, simplePositiveUnaryTest), (tokens: any) => ({
     type: "InExpression",
     expression: tokens[0],
     unaryTest: tokens[2],
   })),
-  apply(seq(instanceOfOrHigher, IN, LPAREN, positiveUnaryTests, RPAREN), (tokens: any) => ({
+  apply(seq(instanceOfOrHigher, IN, LPAREN, simplePositiveUnaryTests, RPAREN), (tokens: any) => ({
     type: "InExpression",
     expression: tokens[0],
     unaryTests: tokens[3],

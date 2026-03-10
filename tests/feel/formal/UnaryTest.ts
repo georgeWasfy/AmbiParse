@@ -1,6 +1,6 @@
 import { alt, apply, lazy, seq } from "../../../src/parser";
 import { Expression } from "./Expression";
-import { COMMA, ELLIPSIS, GE, GT, LBRACK, LE, LPAREN, LT, NOT, RBRACK, RPAREN, SUB } from "./Lexer";
+import { COMMA, ELLIPSIS, GE, GT, LBRACK, LE, LPAREN, LT, RBRACK, RPAREN } from "./Lexer";
 import { expression } from "./main";
 
 type Interval = {
@@ -111,20 +111,20 @@ const interval = alt(
     })
   )
 );
-export const positiveUnaryTest = lazy(() => expression);
-export const positiveUnaryTests = alt(
-  apply(positiveUnaryTest, (exp: Expression) => [[exp]]),
-  apply(
-    seq(
-      positiveUnaryTest,
-      COMMA,
-      lazy(() => positiveUnaryTests)
-    ),
-    ([exp1, _comma, exp2]: [Expression, string, Expression]) => {
-      return Array.isArray(exp2) ? [[exp1, ...exp2]] : [[exp1, exp2]];
-    }
-  )
-);
+// export const positiveUnaryTest = lazy(() => expression);
+// export const positiveUnaryTests = alt(
+//   apply(positiveUnaryTest, (exp: Expression) => [[exp]]),
+//   apply(
+//     seq(
+//       positiveUnaryTest,
+//       COMMA,
+//       lazy(() => positiveUnaryTests)
+//     ),
+//     ([exp1, _comma, exp2]: [Expression, string, Expression]) => {
+//       return Array.isArray(exp2) ? [[exp1, ...exp2]] : [[exp1, exp2]];
+//     }
+//   )
+// );
 export const simplePositiveUnaryTest = alt(
   apply(seq(alt(LT, LE, GT, GE), endpoint), ([op, exp]: [string, Expression]) => {
     return {
@@ -142,32 +142,45 @@ export const simplePositiveUnaryTest = alt(
     };
   })
 );
-
-export const unaryTests = alt(
-  apply(positiveUnaryTests, (tests: Expression[]) => {
-    return {
-      type: "UnaryTests",
-      kind: "positive",
-      tests: tests[0],
-    };
-  }),
+export const simplePositiveUnaryTests = alt(
+  apply(simplePositiveUnaryTest, (exp: Expression) => [[exp]]),
   apply(
-    seq(NOT, LPAREN, positiveUnaryTests, RPAREN),
-    ([_not, _lparen, tests, _rparen]: [string, string, Expression[], string]) => {
-      return {
-        type: "UnaryTests",
-        kind: "negative",
-        tests: tests,
-      };
+    seq(
+      simplePositiveUnaryTest,
+      COMMA,
+      lazy(() => simplePositiveUnaryTests)
+    ),
+    ([exp1, _comma, exp2]: [Expression, string, Expression]) => {
+      return Array.isArray(exp2) ? [[exp1, ...exp2]] : [[exp1, exp2]];
     }
-  ),
-  apply(SUB, () => {
-    return {
-      type: "UnaryTests",
-      kind: "dash",
-    };
-  })
+  )
 );
+
+// export const unaryTests = alt(
+//   apply(positiveUnaryTests, (tests: Expression[]) => {
+//     return {
+//       type: "UnaryTests",
+//       kind: "positive",
+//       tests: tests[0],
+//     };
+//   }),
+//   apply(
+//     seq(NOT, LPAREN, positiveUnaryTests, RPAREN),
+//     ([_not, _lparen, tests, _rparen]: [string, string, Expression[], string]) => {
+//       return {
+//         type: "UnaryTests",
+//         kind: "negative",
+//         tests: tests,
+//       };
+//     }
+//   ),
+//   apply(SUB, () => {
+//     return {
+//       type: "UnaryTests",
+//       kind: "dash",
+//     };
+//   })
+// );
 
 /**********************************
  * Unary Tests EXAMPLES            *

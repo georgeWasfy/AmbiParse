@@ -1,4 +1,4 @@
-import { alt, apply, lazy, match, matchPattern, seq } from "../../../src/parser";
+import { alt, apply, lazy, match, matchPattern, seq } from "../../src/parser";
 import { functionInvocation, qualifiedName } from "./FunctionDefinition";
 
 /********************************

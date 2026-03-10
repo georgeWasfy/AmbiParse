@@ -1,4 +1,4 @@
-import { alt, apply, lazy, seq } from "../../../src/parser";
+import { alt, apply, lazy, seq } from "../../src/parser";
 import { Expression } from "./Expression";
 import { COLON, COMMA, Name, StringLiteral, LBRACE, RBRACE } from "./Lexer";
 import { expression } from "./main";

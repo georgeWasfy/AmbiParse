@@ -1,4 +1,4 @@
-import { alt, apply, lazy, seq } from "../../../src/parser";
+import { alt, apply, lazy, seq } from "../../src/parser";
 import { type } from "./FunctionDefinition";
 
 import { ADD, AND, BETWEEN as BETWEENkw, DIV, DOT, EQUAL, GE, GT, IN, INSTANCE, LBRACK, LE, LPAREN, LT, MUL, Name, NOTEQUAL, NumericLiteral, OF, OR, POW, RBRACK, RPAREN, StringLiteral, SUB, TRUE, FALSE, NULL } from "./Lexer";

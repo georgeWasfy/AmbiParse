@@ -1,4 +1,4 @@
-import { alt, apply, lazy, match, seq } from "../../../src/parser";
+import { alt, apply, lazy, match, seq } from "../../src/parser";
 import { Expression } from "./Expression";
 import {
   COLON,
